@@ -6,6 +6,36 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type PushRequestT struct {
+	TimeId *TimeIdT `json:"time_id"`
+	Payload []byte `json:"payload"`
+}
+
+func (t *PushRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	timeIdOffset := t.TimeId.Pack(builder)
+	payloadOffset := flatbuffers.UOffsetT(0)
+	if t.Payload != nil {
+		payloadOffset = builder.CreateByteString(t.Payload)
+	}
+	PushRequestStart(builder)
+	PushRequestAddTimeId(builder, timeIdOffset)
+	PushRequestAddPayload(builder, payloadOffset)
+	return PushRequestEnd(builder)
+}
+
+func (rcv *PushRequest) UnPackTo(t *PushRequestT) {
+	t.TimeId = rcv.TimeId(nil).UnPack()
+	t.Payload = rcv.PayloadBytes()
+}
+
+func (rcv *PushRequest) UnPack() *PushRequestT {
+	if rcv == nil { return nil }
+	t := &PushRequestT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type PushRequest struct {
 	_tab flatbuffers.Table
 }

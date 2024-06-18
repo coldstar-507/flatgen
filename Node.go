@@ -6,6 +6,225 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type NodeT struct {
+	Id string `json:"id"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+	LastName string `json:"last_name"`
+	BlueHash string `json:"blue_hash"`
+	LastUpdate int64 `json:"last_update"`
+	Description string `json:"description"`
+	MessagingTokens []*MessageTokenT `json:"messaging_tokens"`
+	MainDeviceId string `json:"main_device_id"`
+	HashTree []*HashTreeT `json:"hash_tree"`
+	OwnerId string `json:"owner_id"`
+	IsPublic bool `json:"is_public"`
+	MediaId string `json:"media_id"`
+	Children []string `json:"children"`
+	Posts []string `json:"posts"`
+	Admins []string `json:"admins"`
+	Members []string `json:"members"`
+	Privates []string `json:"privates"`
+	DeviceId string `json:"device_id"`
+	Neuter string `json:"neuter"`
+	Latitude float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+}
+
+func (t *NodeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	idOffset := builder.CreateString(t.Id)
+	type_Offset := builder.CreateString(t.Type)
+	nameOffset := builder.CreateString(t.Name)
+	lastNameOffset := builder.CreateString(t.LastName)
+	blueHashOffset := builder.CreateString(t.BlueHash)
+	descriptionOffset := builder.CreateString(t.Description)
+	messagingTokensOffset := flatbuffers.UOffsetT(0)
+	if t.MessagingTokens != nil {
+		messagingTokensLength := len(t.MessagingTokens)
+		messagingTokensOffsets := make([]flatbuffers.UOffsetT, messagingTokensLength)
+		for j := 0; j < messagingTokensLength; j++ {
+			messagingTokensOffsets[j] = t.MessagingTokens[j].Pack(builder)
+		}
+		NodeStartMessagingTokensVector(builder, messagingTokensLength)
+		for j := messagingTokensLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(messagingTokensOffsets[j])
+		}
+		messagingTokensOffset = builder.EndVector(messagingTokensLength)
+	}
+	mainDeviceIdOffset := builder.CreateString(t.MainDeviceId)
+	hashTreeOffset := flatbuffers.UOffsetT(0)
+	if t.HashTree != nil {
+		hashTreeLength := len(t.HashTree)
+		hashTreeOffsets := make([]flatbuffers.UOffsetT, hashTreeLength)
+		for j := 0; j < hashTreeLength; j++ {
+			hashTreeOffsets[j] = t.HashTree[j].Pack(builder)
+		}
+		NodeStartHashTreeVector(builder, hashTreeLength)
+		for j := hashTreeLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(hashTreeOffsets[j])
+		}
+		hashTreeOffset = builder.EndVector(hashTreeLength)
+	}
+	ownerIdOffset := builder.CreateString(t.OwnerId)
+	mediaIdOffset := builder.CreateString(t.MediaId)
+	childrenOffset := flatbuffers.UOffsetT(0)
+	if t.Children != nil {
+		childrenLength := len(t.Children)
+		childrenOffsets := make([]flatbuffers.UOffsetT, childrenLength)
+		for j := 0; j < childrenLength; j++ {
+			childrenOffsets[j] = builder.CreateString(t.Children[j])
+		}
+		NodeStartChildrenVector(builder, childrenLength)
+		for j := childrenLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(childrenOffsets[j])
+		}
+		childrenOffset = builder.EndVector(childrenLength)
+	}
+	postsOffset := flatbuffers.UOffsetT(0)
+	if t.Posts != nil {
+		postsLength := len(t.Posts)
+		postsOffsets := make([]flatbuffers.UOffsetT, postsLength)
+		for j := 0; j < postsLength; j++ {
+			postsOffsets[j] = builder.CreateString(t.Posts[j])
+		}
+		NodeStartPostsVector(builder, postsLength)
+		for j := postsLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(postsOffsets[j])
+		}
+		postsOffset = builder.EndVector(postsLength)
+	}
+	adminsOffset := flatbuffers.UOffsetT(0)
+	if t.Admins != nil {
+		adminsLength := len(t.Admins)
+		adminsOffsets := make([]flatbuffers.UOffsetT, adminsLength)
+		for j := 0; j < adminsLength; j++ {
+			adminsOffsets[j] = builder.CreateString(t.Admins[j])
+		}
+		NodeStartAdminsVector(builder, adminsLength)
+		for j := adminsLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(adminsOffsets[j])
+		}
+		adminsOffset = builder.EndVector(adminsLength)
+	}
+	membersOffset := flatbuffers.UOffsetT(0)
+	if t.Members != nil {
+		membersLength := len(t.Members)
+		membersOffsets := make([]flatbuffers.UOffsetT, membersLength)
+		for j := 0; j < membersLength; j++ {
+			membersOffsets[j] = builder.CreateString(t.Members[j])
+		}
+		NodeStartMembersVector(builder, membersLength)
+		for j := membersLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(membersOffsets[j])
+		}
+		membersOffset = builder.EndVector(membersLength)
+	}
+	privatesOffset := flatbuffers.UOffsetT(0)
+	if t.Privates != nil {
+		privatesLength := len(t.Privates)
+		privatesOffsets := make([]flatbuffers.UOffsetT, privatesLength)
+		for j := 0; j < privatesLength; j++ {
+			privatesOffsets[j] = builder.CreateString(t.Privates[j])
+		}
+		NodeStartPrivatesVector(builder, privatesLength)
+		for j := privatesLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(privatesOffsets[j])
+		}
+		privatesOffset = builder.EndVector(privatesLength)
+	}
+	deviceIdOffset := builder.CreateString(t.DeviceId)
+	neuterOffset := builder.CreateString(t.Neuter)
+	NodeStart(builder)
+	NodeAddId(builder, idOffset)
+	NodeAddType(builder, type_Offset)
+	NodeAddName(builder, nameOffset)
+	NodeAddLastName(builder, lastNameOffset)
+	NodeAddBlueHash(builder, blueHashOffset)
+	NodeAddLastUpdate(builder, t.LastUpdate)
+	NodeAddDescription(builder, descriptionOffset)
+	NodeAddMessagingTokens(builder, messagingTokensOffset)
+	NodeAddMainDeviceId(builder, mainDeviceIdOffset)
+	NodeAddHashTree(builder, hashTreeOffset)
+	NodeAddOwnerId(builder, ownerIdOffset)
+	NodeAddIsPublic(builder, t.IsPublic)
+	NodeAddMediaId(builder, mediaIdOffset)
+	NodeAddChildren(builder, childrenOffset)
+	NodeAddPosts(builder, postsOffset)
+	NodeAddAdmins(builder, adminsOffset)
+	NodeAddMembers(builder, membersOffset)
+	NodeAddPrivates(builder, privatesOffset)
+	NodeAddDeviceId(builder, deviceIdOffset)
+	NodeAddNeuter(builder, neuterOffset)
+	NodeAddLatitude(builder, t.Latitude)
+	NodeAddLongitude(builder, t.Longitude)
+	return NodeEnd(builder)
+}
+
+func (rcv *Node) UnPackTo(t *NodeT) {
+	t.Id = string(rcv.Id())
+	t.Type = string(rcv.Type())
+	t.Name = string(rcv.Name())
+	t.LastName = string(rcv.LastName())
+	t.BlueHash = string(rcv.BlueHash())
+	t.LastUpdate = rcv.LastUpdate()
+	t.Description = string(rcv.Description())
+	messagingTokensLength := rcv.MessagingTokensLength()
+	t.MessagingTokens = make([]*MessageTokenT, messagingTokensLength)
+	for j := 0; j < messagingTokensLength; j++ {
+		x := MessageToken{}
+		rcv.MessagingTokens(&x, j)
+		t.MessagingTokens[j] = x.UnPack()
+	}
+	t.MainDeviceId = string(rcv.MainDeviceId())
+	hashTreeLength := rcv.HashTreeLength()
+	t.HashTree = make([]*HashTreeT, hashTreeLength)
+	for j := 0; j < hashTreeLength; j++ {
+		x := HashTree{}
+		rcv.HashTree(&x, j)
+		t.HashTree[j] = x.UnPack()
+	}
+	t.OwnerId = string(rcv.OwnerId())
+	t.IsPublic = rcv.IsPublic()
+	t.MediaId = string(rcv.MediaId())
+	childrenLength := rcv.ChildrenLength()
+	t.Children = make([]string, childrenLength)
+	for j := 0; j < childrenLength; j++ {
+		t.Children[j] = string(rcv.Children(j))
+	}
+	postsLength := rcv.PostsLength()
+	t.Posts = make([]string, postsLength)
+	for j := 0; j < postsLength; j++ {
+		t.Posts[j] = string(rcv.Posts(j))
+	}
+	adminsLength := rcv.AdminsLength()
+	t.Admins = make([]string, adminsLength)
+	for j := 0; j < adminsLength; j++ {
+		t.Admins[j] = string(rcv.Admins(j))
+	}
+	membersLength := rcv.MembersLength()
+	t.Members = make([]string, membersLength)
+	for j := 0; j < membersLength; j++ {
+		t.Members[j] = string(rcv.Members(j))
+	}
+	privatesLength := rcv.PrivatesLength()
+	t.Privates = make([]string, privatesLength)
+	for j := 0; j < privatesLength; j++ {
+		t.Privates[j] = string(rcv.Privates(j))
+	}
+	t.DeviceId = string(rcv.DeviceId())
+	t.Neuter = string(rcv.Neuter())
+	t.Latitude = rcv.Latitude()
+	t.Longitude = rcv.Longitude()
+}
+
+func (rcv *Node) UnPack() *NodeT {
+	if rcv == nil { return nil }
+	t := &NodeT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type Node struct {
 	_tab flatbuffers.Table
 }

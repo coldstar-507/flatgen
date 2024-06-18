@@ -6,6 +6,63 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type NotificationsT struct {
+	Sender string `json:"sender"`
+	Root string `json:"root"`
+	Header string `json:"header"`
+	Body string `json:"body"`
+	Targets []*MessageTargetT `json:"targets"`
+}
+
+func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	senderOffset := builder.CreateString(t.Sender)
+	rootOffset := builder.CreateString(t.Root)
+	headerOffset := builder.CreateString(t.Header)
+	bodyOffset := builder.CreateString(t.Body)
+	targetsOffset := flatbuffers.UOffsetT(0)
+	if t.Targets != nil {
+		targetsLength := len(t.Targets)
+		targetsOffsets := make([]flatbuffers.UOffsetT, targetsLength)
+		for j := 0; j < targetsLength; j++ {
+			targetsOffsets[j] = t.Targets[j].Pack(builder)
+		}
+		NotificationsStartTargetsVector(builder, targetsLength)
+		for j := targetsLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(targetsOffsets[j])
+		}
+		targetsOffset = builder.EndVector(targetsLength)
+	}
+	NotificationsStart(builder)
+	NotificationsAddSender(builder, senderOffset)
+	NotificationsAddRoot(builder, rootOffset)
+	NotificationsAddHeader(builder, headerOffset)
+	NotificationsAddBody(builder, bodyOffset)
+	NotificationsAddTargets(builder, targetsOffset)
+	return NotificationsEnd(builder)
+}
+
+func (rcv *Notifications) UnPackTo(t *NotificationsT) {
+	t.Sender = string(rcv.Sender())
+	t.Root = string(rcv.Root())
+	t.Header = string(rcv.Header())
+	t.Body = string(rcv.Body())
+	targetsLength := rcv.TargetsLength()
+	t.Targets = make([]*MessageTargetT, targetsLength)
+	for j := 0; j < targetsLength; j++ {
+		x := MessageTarget{}
+		rcv.Targets(&x, j)
+		t.Targets[j] = x.UnPack()
+	}
+}
+
+func (rcv *Notifications) UnPack() *NotificationsT {
+	if rcv == nil { return nil }
+	t := &NotificationsT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type Notifications struct {
 	_tab flatbuffers.Table
 }

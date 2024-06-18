@@ -6,6 +6,33 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type ChatConnReqT struct {
+	Root string `json:"root"`
+	DeviceId string `json:"device_id"`
+}
+
+func (t *ChatConnReqT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	rootOffset := builder.CreateString(t.Root)
+	deviceIdOffset := builder.CreateString(t.DeviceId)
+	ChatConnReqStart(builder)
+	ChatConnReqAddRoot(builder, rootOffset)
+	ChatConnReqAddDeviceId(builder, deviceIdOffset)
+	return ChatConnReqEnd(builder)
+}
+
+func (rcv *ChatConnReq) UnPackTo(t *ChatConnReqT) {
+	t.Root = string(rcv.Root())
+	t.DeviceId = string(rcv.DeviceId())
+}
+
+func (rcv *ChatConnReq) UnPack() *ChatConnReqT {
+	if rcv == nil { return nil }
+	t := &ChatConnReqT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type ChatConnReq struct {
 	_tab flatbuffers.Table
 }

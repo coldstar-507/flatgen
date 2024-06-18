@@ -6,6 +6,36 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type FullMediaT struct {
+	Metadata *MediaMetadataT `json:"metadata"`
+	Data []byte `json:"data"`
+}
+
+func (t *FullMediaT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	metadataOffset := t.Metadata.Pack(builder)
+	dataOffset := flatbuffers.UOffsetT(0)
+	if t.Data != nil {
+		dataOffset = builder.CreateByteString(t.Data)
+	}
+	FullMediaStart(builder)
+	FullMediaAddMetadata(builder, metadataOffset)
+	FullMediaAddData(builder, dataOffset)
+	return FullMediaEnd(builder)
+}
+
+func (rcv *FullMedia) UnPackTo(t *FullMediaT) {
+	t.Metadata = rcv.Metadata(nil).UnPack()
+	t.Data = rcv.DataBytes()
+}
+
+func (rcv *FullMedia) UnPack() *FullMediaT {
+	if rcv == nil { return nil }
+	t := &FullMediaT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type FullMedia struct {
 	_tab flatbuffers.Table
 }

@@ -6,6 +6,35 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type ScrollResT struct {
+	Code bool `json:"code"`
+	Before bool `json:"before"`
+	Root string `json:"root"`
+}
+
+func (t *ScrollResT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	rootOffset := builder.CreateString(t.Root)
+	ScrollResStart(builder)
+	ScrollResAddCode(builder, t.Code)
+	ScrollResAddBefore(builder, t.Before)
+	ScrollResAddRoot(builder, rootOffset)
+	return ScrollResEnd(builder)
+}
+
+func (rcv *ScrollRes) UnPackTo(t *ScrollResT) {
+	t.Code = rcv.Code()
+	t.Before = rcv.Before()
+	t.Root = string(rcv.Root())
+}
+
+func (rcv *ScrollRes) UnPack() *ScrollResT {
+	if rcv == nil { return nil }
+	t := &ScrollResT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type ScrollRes struct {
 	_tab flatbuffers.Table
 }

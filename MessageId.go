@@ -6,6 +6,44 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type MessageIdT struct {
+	Place string `json:"place"`
+	Unik string `json:"unik"`
+	Timestamp int64 `json:"timestamp"`
+	Root string `json:"root"`
+	Suffix string `json:"suffix"`
+}
+
+func (t *MessageIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	placeOffset := builder.CreateString(t.Place)
+	unikOffset := builder.CreateString(t.Unik)
+	rootOffset := builder.CreateString(t.Root)
+	suffixOffset := builder.CreateString(t.Suffix)
+	MessageIdStart(builder)
+	MessageIdAddPlace(builder, placeOffset)
+	MessageIdAddUnik(builder, unikOffset)
+	MessageIdAddTimestamp(builder, t.Timestamp)
+	MessageIdAddRoot(builder, rootOffset)
+	MessageIdAddSuffix(builder, suffixOffset)
+	return MessageIdEnd(builder)
+}
+
+func (rcv *MessageId) UnPackTo(t *MessageIdT) {
+	t.Place = string(rcv.Place())
+	t.Unik = string(rcv.Unik())
+	t.Timestamp = rcv.Timestamp()
+	t.Root = string(rcv.Root())
+	t.Suffix = string(rcv.Suffix())
+}
+
+func (rcv *MessageId) UnPack() *MessageIdT {
+	if rcv == nil { return nil }
+	t := &MessageIdT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type MessageId struct {
 	_tab flatbuffers.Table
 }

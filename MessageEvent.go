@@ -6,6 +6,149 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type MessageEventT struct {
+	ChatId *MessageIdT `json:"chat_id"`
+	Type byte `json:"type"`
+	ReactionId string `json:"reaction_id"`
+	SenderId string `json:"sender_id"`
+	MessageId string `json:"message_id"`
+	Root string `json:"root"`
+	Tag string `json:"tag"`
+	Timestamp uint64 `json:"timestamp"`
+	ForwardedFrom string `json:"forwarded_from"`
+	PaymentId string `json:"payment_id"`
+	Nodes []string `json:"nodes"`
+	Replies []string `json:"replies"`
+	Txt string `json:"txt"`
+	MediaId string `json:"media_id"`
+	TempMedia string `json:"temp_media"`
+	TempPayment string `json:"temp_payment"`
+	Emoji string `json:"emoji"`
+	Sticks []*StickerT `json:"sticks"`
+	SnipSize *OffsetT `json:"snip_size"`
+}
+
+func (t *MessageEventT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	chatIdOffset := t.ChatId.Pack(builder)
+	reactionIdOffset := builder.CreateString(t.ReactionId)
+	senderIdOffset := builder.CreateString(t.SenderId)
+	messageIdOffset := builder.CreateString(t.MessageId)
+	rootOffset := builder.CreateString(t.Root)
+	tagOffset := builder.CreateString(t.Tag)
+	forwardedFromOffset := builder.CreateString(t.ForwardedFrom)
+	paymentIdOffset := builder.CreateString(t.PaymentId)
+	nodesOffset := flatbuffers.UOffsetT(0)
+	if t.Nodes != nil {
+		nodesLength := len(t.Nodes)
+		nodesOffsets := make([]flatbuffers.UOffsetT, nodesLength)
+		for j := 0; j < nodesLength; j++ {
+			nodesOffsets[j] = builder.CreateString(t.Nodes[j])
+		}
+		MessageEventStartNodesVector(builder, nodesLength)
+		for j := nodesLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(nodesOffsets[j])
+		}
+		nodesOffset = builder.EndVector(nodesLength)
+	}
+	repliesOffset := flatbuffers.UOffsetT(0)
+	if t.Replies != nil {
+		repliesLength := len(t.Replies)
+		repliesOffsets := make([]flatbuffers.UOffsetT, repliesLength)
+		for j := 0; j < repliesLength; j++ {
+			repliesOffsets[j] = builder.CreateString(t.Replies[j])
+		}
+		MessageEventStartRepliesVector(builder, repliesLength)
+		for j := repliesLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(repliesOffsets[j])
+		}
+		repliesOffset = builder.EndVector(repliesLength)
+	}
+	txtOffset := builder.CreateString(t.Txt)
+	mediaIdOffset := builder.CreateString(t.MediaId)
+	tempMediaOffset := builder.CreateString(t.TempMedia)
+	tempPaymentOffset := builder.CreateString(t.TempPayment)
+	emojiOffset := builder.CreateString(t.Emoji)
+	sticksOffset := flatbuffers.UOffsetT(0)
+	if t.Sticks != nil {
+		sticksLength := len(t.Sticks)
+		sticksOffsets := make([]flatbuffers.UOffsetT, sticksLength)
+		for j := 0; j < sticksLength; j++ {
+			sticksOffsets[j] = t.Sticks[j].Pack(builder)
+		}
+		MessageEventStartSticksVector(builder, sticksLength)
+		for j := sticksLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(sticksOffsets[j])
+		}
+		sticksOffset = builder.EndVector(sticksLength)
+	}
+	MessageEventStart(builder)
+	MessageEventAddChatId(builder, chatIdOffset)
+	MessageEventAddType(builder, t.Type)
+	MessageEventAddReactionId(builder, reactionIdOffset)
+	MessageEventAddSenderId(builder, senderIdOffset)
+	MessageEventAddMessageId(builder, messageIdOffset)
+	MessageEventAddRoot(builder, rootOffset)
+	MessageEventAddTag(builder, tagOffset)
+	MessageEventAddTimestamp(builder, t.Timestamp)
+	MessageEventAddForwardedFrom(builder, forwardedFromOffset)
+	MessageEventAddPaymentId(builder, paymentIdOffset)
+	MessageEventAddNodes(builder, nodesOffset)
+	MessageEventAddReplies(builder, repliesOffset)
+	MessageEventAddTxt(builder, txtOffset)
+	MessageEventAddMediaId(builder, mediaIdOffset)
+	MessageEventAddTempMedia(builder, tempMediaOffset)
+	MessageEventAddTempPayment(builder, tempPaymentOffset)
+	MessageEventAddEmoji(builder, emojiOffset)
+	MessageEventAddSticks(builder, sticksOffset)
+	snipSizeOffset := t.SnipSize.Pack(builder)
+	MessageEventAddSnipSize(builder, snipSizeOffset)
+	return MessageEventEnd(builder)
+}
+
+func (rcv *MessageEvent) UnPackTo(t *MessageEventT) {
+	t.ChatId = rcv.ChatId(nil).UnPack()
+	t.Type = rcv.Type()
+	t.ReactionId = string(rcv.ReactionId())
+	t.SenderId = string(rcv.SenderId())
+	t.MessageId = string(rcv.MessageId())
+	t.Root = string(rcv.Root())
+	t.Tag = string(rcv.Tag())
+	t.Timestamp = rcv.Timestamp()
+	t.ForwardedFrom = string(rcv.ForwardedFrom())
+	t.PaymentId = string(rcv.PaymentId())
+	nodesLength := rcv.NodesLength()
+	t.Nodes = make([]string, nodesLength)
+	for j := 0; j < nodesLength; j++ {
+		t.Nodes[j] = string(rcv.Nodes(j))
+	}
+	repliesLength := rcv.RepliesLength()
+	t.Replies = make([]string, repliesLength)
+	for j := 0; j < repliesLength; j++ {
+		t.Replies[j] = string(rcv.Replies(j))
+	}
+	t.Txt = string(rcv.Txt())
+	t.MediaId = string(rcv.MediaId())
+	t.TempMedia = string(rcv.TempMedia())
+	t.TempPayment = string(rcv.TempPayment())
+	t.Emoji = string(rcv.Emoji())
+	sticksLength := rcv.SticksLength()
+	t.Sticks = make([]*StickerT, sticksLength)
+	for j := 0; j < sticksLength; j++ {
+		x := Sticker{}
+		rcv.Sticks(&x, j)
+		t.Sticks[j] = x.UnPack()
+	}
+	t.SnipSize = rcv.SnipSize(nil).UnPack()
+}
+
+func (rcv *MessageEvent) UnPack() *MessageEventT {
+	if rcv == nil { return nil }
+	t := &MessageEventT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type MessageEvent struct {
 	_tab flatbuffers.Table
 }

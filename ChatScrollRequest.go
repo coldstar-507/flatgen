@@ -6,6 +6,32 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type ChatScrollRequestT struct {
+	ChatId string `json:"chat_id"`
+	Before bool `json:"before"`
+}
+
+func (t *ChatScrollRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	chatIdOffset := builder.CreateString(t.ChatId)
+	ChatScrollRequestStart(builder)
+	ChatScrollRequestAddChatId(builder, chatIdOffset)
+	ChatScrollRequestAddBefore(builder, t.Before)
+	return ChatScrollRequestEnd(builder)
+}
+
+func (rcv *ChatScrollRequest) UnPackTo(t *ChatScrollRequestT) {
+	t.ChatId = string(rcv.ChatId())
+	t.Before = rcv.Before()
+}
+
+func (rcv *ChatScrollRequest) UnPack() *ChatScrollRequestT {
+	if rcv == nil { return nil }
+	t := &ChatScrollRequestT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type ChatScrollRequest struct {
 	_tab flatbuffers.Table
 }

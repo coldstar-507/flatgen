@@ -6,6 +6,40 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type MessageEventRequestT struct {
+	Type byte `json:"type"`
+	MessageEvent *MessageEventT `json:"message_event"`
+	FullMedia *FullMediaT `json:"full_media"`
+	Notifications *NotificationsT `json:"notifications"`
+}
+
+func (t *MessageEventRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	messageEventOffset := t.MessageEvent.Pack(builder)
+	fullMediaOffset := t.FullMedia.Pack(builder)
+	notificationsOffset := t.Notifications.Pack(builder)
+	MessageEventRequestStart(builder)
+	MessageEventRequestAddType(builder, t.Type)
+	MessageEventRequestAddMessageEvent(builder, messageEventOffset)
+	MessageEventRequestAddFullMedia(builder, fullMediaOffset)
+	MessageEventRequestAddNotifications(builder, notificationsOffset)
+	return MessageEventRequestEnd(builder)
+}
+
+func (rcv *MessageEventRequest) UnPackTo(t *MessageEventRequestT) {
+	t.Type = rcv.Type()
+	t.MessageEvent = rcv.MessageEvent(nil).UnPack()
+	t.FullMedia = rcv.FullMedia(nil).UnPack()
+	t.Notifications = rcv.Notifications(nil).UnPack()
+}
+
+func (rcv *MessageEventRequest) UnPack() *MessageEventRequestT {
+	if rcv == nil { return nil }
+	t := &MessageEventRequestT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type MessageEventRequest struct {
 	_tab flatbuffers.Table
 }

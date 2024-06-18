@@ -6,6 +6,75 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type SnipT struct {
+	ChatId string `json:"chat_id"`
+	SenderId string `json:"sender_id"`
+	Tag string `json:"tag"`
+	MediaId string `json:"media_id"`
+	TempMedia string `json:"temp_media"`
+	Txt string `json:"txt"`
+	SnipSize *OffsetT `json:"snip_size"`
+	Sticks []*StickerT `json:"sticks"`
+}
+
+func (t *SnipT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	chatIdOffset := builder.CreateString(t.ChatId)
+	senderIdOffset := builder.CreateString(t.SenderId)
+	tagOffset := builder.CreateString(t.Tag)
+	mediaIdOffset := builder.CreateString(t.MediaId)
+	tempMediaOffset := builder.CreateString(t.TempMedia)
+	txtOffset := builder.CreateString(t.Txt)
+	sticksOffset := flatbuffers.UOffsetT(0)
+	if t.Sticks != nil {
+		sticksLength := len(t.Sticks)
+		sticksOffsets := make([]flatbuffers.UOffsetT, sticksLength)
+		for j := 0; j < sticksLength; j++ {
+			sticksOffsets[j] = t.Sticks[j].Pack(builder)
+		}
+		SnipStartSticksVector(builder, sticksLength)
+		for j := sticksLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(sticksOffsets[j])
+		}
+		sticksOffset = builder.EndVector(sticksLength)
+	}
+	SnipStart(builder)
+	SnipAddChatId(builder, chatIdOffset)
+	SnipAddSenderId(builder, senderIdOffset)
+	SnipAddTag(builder, tagOffset)
+	SnipAddMediaId(builder, mediaIdOffset)
+	SnipAddTempMedia(builder, tempMediaOffset)
+	SnipAddTxt(builder, txtOffset)
+	snipSizeOffset := t.SnipSize.Pack(builder)
+	SnipAddSnipSize(builder, snipSizeOffset)
+	SnipAddSticks(builder, sticksOffset)
+	return SnipEnd(builder)
+}
+
+func (rcv *Snip) UnPackTo(t *SnipT) {
+	t.ChatId = string(rcv.ChatId())
+	t.SenderId = string(rcv.SenderId())
+	t.Tag = string(rcv.Tag())
+	t.MediaId = string(rcv.MediaId())
+	t.TempMedia = string(rcv.TempMedia())
+	t.Txt = string(rcv.Txt())
+	t.SnipSize = rcv.SnipSize(nil).UnPack()
+	sticksLength := rcv.SticksLength()
+	t.Sticks = make([]*StickerT, sticksLength)
+	for j := 0; j < sticksLength; j++ {
+		x := Sticker{}
+		rcv.Sticks(&x, j)
+		t.Sticks[j] = x.UnPack()
+	}
+}
+
+func (rcv *Snip) UnPack() *SnipT {
+	if rcv == nil { return nil }
+	t := &SnipT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type Snip struct {
 	_tab flatbuffers.Table
 }

@@ -6,6 +6,33 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type MessageTokenT struct {
+	DeviceId string `json:"device_id"`
+	Token string `json:"token"`
+}
+
+func (t *MessageTokenT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	deviceIdOffset := builder.CreateString(t.DeviceId)
+	tokenOffset := builder.CreateString(t.Token)
+	MessageTokenStart(builder)
+	MessageTokenAddDeviceId(builder, deviceIdOffset)
+	MessageTokenAddToken(builder, tokenOffset)
+	return MessageTokenEnd(builder)
+}
+
+func (rcv *MessageToken) UnPackTo(t *MessageTokenT) {
+	t.DeviceId = string(rcv.DeviceId())
+	t.Token = string(rcv.Token())
+}
+
+func (rcv *MessageToken) UnPack() *MessageTokenT {
+	if rcv == nil { return nil }
+	t := &MessageTokenT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type MessageToken struct {
 	_tab flatbuffers.Table
 }

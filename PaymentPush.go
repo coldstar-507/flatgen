@@ -6,6 +6,33 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type PaymentPushT struct {
+	Id string `json:"id"`
+	TempId string `json:"temp_id"`
+}
+
+func (t *PaymentPushT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	idOffset := builder.CreateString(t.Id)
+	tempIdOffset := builder.CreateString(t.TempId)
+	PaymentPushStart(builder)
+	PaymentPushAddId(builder, idOffset)
+	PaymentPushAddTempId(builder, tempIdOffset)
+	return PaymentPushEnd(builder)
+}
+
+func (rcv *PaymentPush) UnPackTo(t *PaymentPushT) {
+	t.Id = string(rcv.Id())
+	t.TempId = string(rcv.TempId())
+}
+
+func (rcv *PaymentPush) UnPack() *PaymentPushT {
+	if rcv == nil { return nil }
+	t := &PaymentPushT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type PaymentPush struct {
 	_tab flatbuffers.Table
 }

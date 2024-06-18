@@ -6,6 +6,33 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+type FullStickerT struct {
+	Sticker *StickerT `json:"sticker"`
+	FullMedia *FullMediaT `json:"full_media"`
+}
+
+func (t *FullStickerT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+	if t == nil { return 0 }
+	stickerOffset := t.Sticker.Pack(builder)
+	fullMediaOffset := t.FullMedia.Pack(builder)
+	FullStickerStart(builder)
+	FullStickerAddSticker(builder, stickerOffset)
+	FullStickerAddFullMedia(builder, fullMediaOffset)
+	return FullStickerEnd(builder)
+}
+
+func (rcv *FullSticker) UnPackTo(t *FullStickerT) {
+	t.Sticker = rcv.Sticker(nil).UnPack()
+	t.FullMedia = rcv.FullMedia(nil).UnPack()
+}
+
+func (rcv *FullSticker) UnPack() *FullStickerT {
+	if rcv == nil { return nil }
+	t := &FullStickerT{}
+	rcv.UnPackTo(t)
+	return t
+}
+
 type FullSticker struct {
 	_tab flatbuffers.Table
 }
