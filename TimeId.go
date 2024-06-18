@@ -6,36 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type TimeIdT struct {
-	Place string `json:"place"`
-	Unik string `json:"unik"`
-	Timestamp int64 `json:"timestamp"`
-}
-
-func (t *TimeIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	placeOffset := builder.CreateString(t.Place)
-	unikOffset := builder.CreateString(t.Unik)
-	TimeIdStart(builder)
-	TimeIdAddPlace(builder, placeOffset)
-	TimeIdAddUnik(builder, unikOffset)
-	TimeIdAddTimestamp(builder, t.Timestamp)
-	return TimeIdEnd(builder)
-}
-
-func (rcv *TimeId) UnPackTo(t *TimeIdT) {
-	t.Place = string(rcv.Place())
-	t.Unik = string(rcv.Unik())
-	t.Timestamp = rcv.Timestamp()
-}
-
-func (rcv *TimeId) UnPack() *TimeIdT {
-	if rcv == nil { return nil }
-	t := &TimeIdT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type TimeId struct {
 	_tab flatbuffers.Table
 }

@@ -6,33 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type HashTreeT struct {
-	Root string `json:"root"`
-	Hash string `json:"hash"`
-}
-
-func (t *HashTreeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	rootOffset := builder.CreateString(t.Root)
-	hashOffset := builder.CreateString(t.Hash)
-	HashTreeStart(builder)
-	HashTreeAddRoot(builder, rootOffset)
-	HashTreeAddHash(builder, hashOffset)
-	return HashTreeEnd(builder)
-}
-
-func (rcv *HashTree) UnPackTo(t *HashTreeT) {
-	t.Root = string(rcv.Root())
-	t.Hash = string(rcv.Hash())
-}
-
-func (rcv *HashTree) UnPack() *HashTreeT {
-	if rcv == nil { return nil }
-	t := &HashTreeT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type HashTree struct {
 	_tab flatbuffers.Table
 }

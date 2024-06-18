@@ -6,40 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type MessageIdT struct {
-	Place string `json:"place"`
-	Unik string `json:"unik"`
-	Timestamp int64 `json:"timestamp"`
-	Root string `json:"root"`
-}
-
-func (t *MessageIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	placeOffset := builder.CreateString(t.Place)
-	unikOffset := builder.CreateString(t.Unik)
-	rootOffset := builder.CreateString(t.Root)
-	MessageIdStart(builder)
-	MessageIdAddPlace(builder, placeOffset)
-	MessageIdAddUnik(builder, unikOffset)
-	MessageIdAddTimestamp(builder, t.Timestamp)
-	MessageIdAddRoot(builder, rootOffset)
-	return MessageIdEnd(builder)
-}
-
-func (rcv *MessageId) UnPackTo(t *MessageIdT) {
-	t.Place = string(rcv.Place())
-	t.Unik = string(rcv.Unik())
-	t.Timestamp = rcv.Timestamp()
-	t.Root = string(rcv.Root())
-}
-
-func (rcv *MessageId) UnPack() *MessageIdT {
-	if rcv == nil { return nil }
-	t := &MessageIdT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type MessageId struct {
 	_tab flatbuffers.Table
 }
@@ -103,8 +69,16 @@ func (rcv *MessageId) Root() []byte {
 	return nil
 }
 
+func (rcv *MessageId) Suffix() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
 func MessageIdStart(builder *flatbuffers.Builder) {
-	builder.StartObject(4)
+	builder.StartObject(5)
 }
 func MessageIdAddPlace(builder *flatbuffers.Builder, place flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(place), 0)
@@ -117,6 +91,9 @@ func MessageIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 }
 func MessageIdAddRoot(builder *flatbuffers.Builder, root flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(root), 0)
+}
+func MessageIdAddSuffix(builder *flatbuffers.Builder, suffix flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(suffix), 0)
 }
 func MessageIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

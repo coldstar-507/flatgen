@@ -6,47 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type NodeResponseT struct {
-	Nodes []*NodeT `json:"nodes"`
-}
-
-func (t *NodeResponseT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	nodesOffset := flatbuffers.UOffsetT(0)
-	if t.Nodes != nil {
-		nodesLength := len(t.Nodes)
-		nodesOffsets := make([]flatbuffers.UOffsetT, nodesLength)
-		for j := 0; j < nodesLength; j++ {
-			nodesOffsets[j] = t.Nodes[j].Pack(builder)
-		}
-		NodeResponseStartNodesVector(builder, nodesLength)
-		for j := nodesLength - 1; j >= 0; j-- {
-			builder.PrependUOffsetT(nodesOffsets[j])
-		}
-		nodesOffset = builder.EndVector(nodesLength)
-	}
-	NodeResponseStart(builder)
-	NodeResponseAddNodes(builder, nodesOffset)
-	return NodeResponseEnd(builder)
-}
-
-func (rcv *NodeResponse) UnPackTo(t *NodeResponseT) {
-	nodesLength := rcv.NodesLength()
-	t.Nodes = make([]*NodeT, nodesLength)
-	for j := 0; j < nodesLength; j++ {
-		x := Node{}
-		rcv.Nodes(&x, j)
-		t.Nodes[j] = x.UnPack()
-	}
-}
-
-func (rcv *NodeResponse) UnPack() *NodeResponseT {
-	if rcv == nil { return nil }
-	t := &NodeResponseT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type NodeResponse struct {
 	_tab flatbuffers.Table
 }

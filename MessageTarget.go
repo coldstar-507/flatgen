@@ -6,43 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type MessageTargetT struct {
-	UserId string `json:"user_id"`
-	DeviceId string `json:"device_id"`
-	Token string `json:"token"`
-	ShowNotif bool `json:"show_notif"`
-	DoPush bool `json:"do_push"`
-}
-
-func (t *MessageTargetT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	userIdOffset := builder.CreateString(t.UserId)
-	deviceIdOffset := builder.CreateString(t.DeviceId)
-	tokenOffset := builder.CreateString(t.Token)
-	MessageTargetStart(builder)
-	MessageTargetAddUserId(builder, userIdOffset)
-	MessageTargetAddDeviceId(builder, deviceIdOffset)
-	MessageTargetAddToken(builder, tokenOffset)
-	MessageTargetAddShowNotif(builder, t.ShowNotif)
-	MessageTargetAddDoPush(builder, t.DoPush)
-	return MessageTargetEnd(builder)
-}
-
-func (rcv *MessageTarget) UnPackTo(t *MessageTargetT) {
-	t.UserId = string(rcv.UserId())
-	t.DeviceId = string(rcv.DeviceId())
-	t.Token = string(rcv.Token())
-	t.ShowNotif = rcv.ShowNotif()
-	t.DoPush = rcv.DoPush()
-}
-
-func (rcv *MessageTarget) UnPack() *MessageTargetT {
-	if rcv == nil { return nil }
-	t := &MessageTargetT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type MessageTarget struct {
 	_tab flatbuffers.Table
 }

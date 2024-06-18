@@ -6,62 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type MediaMetadataT struct {
-	TimeId string `json:"time_id"`
-	OwnerId string `json:"owner_id"`
-	Timestamp int64 `json:"timestamp"`
-	Mime string `json:"mime"`
-	IsReversed bool `json:"is_reversed"`
-	IsEncrypted bool `json:"is_encrypted"`
-	IsPaidToView bool `json:"is_paid_to_view"`
-	IsPaidToOwn bool `json:"is_paid_to_own"`
-	IsLocked bool `json:"is_locked"`
-	IsSaved bool `json:"is_saved"`
-	Temp string `json:"temp"`
-}
-
-func (t *MediaMetadataT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	timeIdOffset := builder.CreateString(t.TimeId)
-	ownerIdOffset := builder.CreateString(t.OwnerId)
-	mimeOffset := builder.CreateString(t.Mime)
-	tempOffset := builder.CreateString(t.Temp)
-	MediaMetadataStart(builder)
-	MediaMetadataAddTimeId(builder, timeIdOffset)
-	MediaMetadataAddOwnerId(builder, ownerIdOffset)
-	MediaMetadataAddTimestamp(builder, t.Timestamp)
-	MediaMetadataAddMime(builder, mimeOffset)
-	MediaMetadataAddIsReversed(builder, t.IsReversed)
-	MediaMetadataAddIsEncrypted(builder, t.IsEncrypted)
-	MediaMetadataAddIsPaidToView(builder, t.IsPaidToView)
-	MediaMetadataAddIsPaidToOwn(builder, t.IsPaidToOwn)
-	MediaMetadataAddIsLocked(builder, t.IsLocked)
-	MediaMetadataAddIsSaved(builder, t.IsSaved)
-	MediaMetadataAddTemp(builder, tempOffset)
-	return MediaMetadataEnd(builder)
-}
-
-func (rcv *MediaMetadata) UnPackTo(t *MediaMetadataT) {
-	t.TimeId = string(rcv.TimeId())
-	t.OwnerId = string(rcv.OwnerId())
-	t.Timestamp = rcv.Timestamp()
-	t.Mime = string(rcv.Mime())
-	t.IsReversed = rcv.IsReversed()
-	t.IsEncrypted = rcv.IsEncrypted()
-	t.IsPaidToView = rcv.IsPaidToView()
-	t.IsPaidToOwn = rcv.IsPaidToOwn()
-	t.IsLocked = rcv.IsLocked()
-	t.IsSaved = rcv.IsSaved()
-	t.Temp = string(rcv.Temp())
-}
-
-func (rcv *MediaMetadata) UnPack() *MediaMetadataT {
-	if rcv == nil { return nil }
-	t := &MediaMetadataT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type MediaMetadata struct {
 	_tab flatbuffers.Table
 }

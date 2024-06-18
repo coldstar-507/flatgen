@@ -6,40 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type NodeRequestT struct {
-	Node *NodeT `json:"node"`
-	Media *MediaMetadataT `json:"media"`
-	Data []byte `json:"data"`
-}
-
-func (t *NodeRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	nodeOffset := t.Node.Pack(builder)
-	mediaOffset := t.Media.Pack(builder)
-	dataOffset := flatbuffers.UOffsetT(0)
-	if t.Data != nil {
-		dataOffset = builder.CreateByteString(t.Data)
-	}
-	NodeRequestStart(builder)
-	NodeRequestAddNode(builder, nodeOffset)
-	NodeRequestAddMedia(builder, mediaOffset)
-	NodeRequestAddData(builder, dataOffset)
-	return NodeRequestEnd(builder)
-}
-
-func (rcv *NodeRequest) UnPackTo(t *NodeRequestT) {
-	t.Node = rcv.Node(nil).UnPack()
-	t.Media = rcv.Media(nil).UnPack()
-	t.Data = rcv.DataBytes()
-}
-
-func (rcv *NodeRequest) UnPack() *NodeRequestT {
-	if rcv == nil { return nil }
-	t := &NodeRequestT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type NodeRequest struct {
 	_tab flatbuffers.Table
 }

@@ -6,27 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type OffsetT struct {
-	X float32 `json:"x"`
-	Y float32 `json:"y"`
-}
-
-func (t *OffsetT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	return CreateOffset(builder, t.X, t.Y)
-}
-func (rcv *Offset) UnPackTo(t *OffsetT) {
-	t.X = rcv.X()
-	t.Y = rcv.Y()
-}
-
-func (rcv *Offset) UnPack() *OffsetT {
-	if rcv == nil { return nil }
-	t := &OffsetT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Offset struct {
 	_tab flatbuffers.Struct
 }

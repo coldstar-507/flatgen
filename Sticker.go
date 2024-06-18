@@ -6,51 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type StickerT struct {
-	MediaId string `json:"media_id"`
-	Temp string `json:"temp"`
-	Pos *OffsetT `json:"pos"`
-	Size *OffsetT `json:"size"`
-	Rotation float32 `json:"rotation"`
-	Scale float32 `json:"scale"`
-	Emoji string `json:"emoji"`
-}
-
-func (t *StickerT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	mediaIdOffset := builder.CreateString(t.MediaId)
-	tempOffset := builder.CreateString(t.Temp)
-	emojiOffset := builder.CreateString(t.Emoji)
-	StickerStart(builder)
-	StickerAddMediaId(builder, mediaIdOffset)
-	StickerAddTemp(builder, tempOffset)
-	posOffset := t.Pos.Pack(builder)
-	StickerAddPos(builder, posOffset)
-	sizeOffset := t.Size.Pack(builder)
-	StickerAddSize(builder, sizeOffset)
-	StickerAddRotation(builder, t.Rotation)
-	StickerAddScale(builder, t.Scale)
-	StickerAddEmoji(builder, emojiOffset)
-	return StickerEnd(builder)
-}
-
-func (rcv *Sticker) UnPackTo(t *StickerT) {
-	t.MediaId = string(rcv.MediaId())
-	t.Temp = string(rcv.Temp())
-	t.Pos = rcv.Pos(nil).UnPack()
-	t.Size = rcv.Size(nil).UnPack()
-	t.Rotation = rcv.Rotation()
-	t.Scale = rcv.Scale()
-	t.Emoji = string(rcv.Emoji())
-}
-
-func (rcv *Sticker) UnPack() *StickerT {
-	if rcv == nil { return nil }
-	t := &StickerT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Sticker struct {
 	_tab flatbuffers.Table
 }

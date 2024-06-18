@@ -6,123 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type MessageEventT struct {
-	ChatId *MessageIdT `json:"chat_id"`
-	Type byte `json:"type"`
-	ReactionId string `json:"reaction_id"`
-	SenderId string `json:"sender_id"`
-	MessageId string `json:"message_id"`
-	Root string `json:"root"`
-	Tag string `json:"tag"`
-	Timestamp uint64 `json:"timestamp"`
-	ForwardedFrom string `json:"forwarded_from"`
-	PaymentId string `json:"payment_id"`
-	Nodes []string `json:"nodes"`
-	Replies []string `json:"replies"`
-	Txt string `json:"txt"`
-	MediaId string `json:"media_id"`
-	TempMedia string `json:"temp_media"`
-	TempPayment string `json:"temp_payment"`
-	Emoji string `json:"emoji"`
-}
-
-func (t *MessageEventT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	chatIdOffset := t.ChatId.Pack(builder)
-	reactionIdOffset := builder.CreateString(t.ReactionId)
-	senderIdOffset := builder.CreateString(t.SenderId)
-	messageIdOffset := builder.CreateString(t.MessageId)
-	rootOffset := builder.CreateString(t.Root)
-	tagOffset := builder.CreateString(t.Tag)
-	forwardedFromOffset := builder.CreateString(t.ForwardedFrom)
-	paymentIdOffset := builder.CreateString(t.PaymentId)
-	nodesOffset := flatbuffers.UOffsetT(0)
-	if t.Nodes != nil {
-		nodesLength := len(t.Nodes)
-		nodesOffsets := make([]flatbuffers.UOffsetT, nodesLength)
-		for j := 0; j < nodesLength; j++ {
-			nodesOffsets[j] = builder.CreateString(t.Nodes[j])
-		}
-		MessageEventStartNodesVector(builder, nodesLength)
-		for j := nodesLength - 1; j >= 0; j-- {
-			builder.PrependUOffsetT(nodesOffsets[j])
-		}
-		nodesOffset = builder.EndVector(nodesLength)
-	}
-	repliesOffset := flatbuffers.UOffsetT(0)
-	if t.Replies != nil {
-		repliesLength := len(t.Replies)
-		repliesOffsets := make([]flatbuffers.UOffsetT, repliesLength)
-		for j := 0; j < repliesLength; j++ {
-			repliesOffsets[j] = builder.CreateString(t.Replies[j])
-		}
-		MessageEventStartRepliesVector(builder, repliesLength)
-		for j := repliesLength - 1; j >= 0; j-- {
-			builder.PrependUOffsetT(repliesOffsets[j])
-		}
-		repliesOffset = builder.EndVector(repliesLength)
-	}
-	txtOffset := builder.CreateString(t.Txt)
-	mediaIdOffset := builder.CreateString(t.MediaId)
-	tempMediaOffset := builder.CreateString(t.TempMedia)
-	tempPaymentOffset := builder.CreateString(t.TempPayment)
-	emojiOffset := builder.CreateString(t.Emoji)
-	MessageEventStart(builder)
-	MessageEventAddChatId(builder, chatIdOffset)
-	MessageEventAddType(builder, t.Type)
-	MessageEventAddReactionId(builder, reactionIdOffset)
-	MessageEventAddSenderId(builder, senderIdOffset)
-	MessageEventAddMessageId(builder, messageIdOffset)
-	MessageEventAddRoot(builder, rootOffset)
-	MessageEventAddTag(builder, tagOffset)
-	MessageEventAddTimestamp(builder, t.Timestamp)
-	MessageEventAddForwardedFrom(builder, forwardedFromOffset)
-	MessageEventAddPaymentId(builder, paymentIdOffset)
-	MessageEventAddNodes(builder, nodesOffset)
-	MessageEventAddReplies(builder, repliesOffset)
-	MessageEventAddTxt(builder, txtOffset)
-	MessageEventAddMediaId(builder, mediaIdOffset)
-	MessageEventAddTempMedia(builder, tempMediaOffset)
-	MessageEventAddTempPayment(builder, tempPaymentOffset)
-	MessageEventAddEmoji(builder, emojiOffset)
-	return MessageEventEnd(builder)
-}
-
-func (rcv *MessageEvent) UnPackTo(t *MessageEventT) {
-	t.ChatId = rcv.ChatId(nil).UnPack()
-	t.Type = rcv.Type()
-	t.ReactionId = string(rcv.ReactionId())
-	t.SenderId = string(rcv.SenderId())
-	t.MessageId = string(rcv.MessageId())
-	t.Root = string(rcv.Root())
-	t.Tag = string(rcv.Tag())
-	t.Timestamp = rcv.Timestamp()
-	t.ForwardedFrom = string(rcv.ForwardedFrom())
-	t.PaymentId = string(rcv.PaymentId())
-	nodesLength := rcv.NodesLength()
-	t.Nodes = make([]string, nodesLength)
-	for j := 0; j < nodesLength; j++ {
-		t.Nodes[j] = string(rcv.Nodes(j))
-	}
-	repliesLength := rcv.RepliesLength()
-	t.Replies = make([]string, repliesLength)
-	for j := 0; j < repliesLength; j++ {
-		t.Replies[j] = string(rcv.Replies(j))
-	}
-	t.Txt = string(rcv.Txt())
-	t.MediaId = string(rcv.MediaId())
-	t.TempMedia = string(rcv.TempMedia())
-	t.TempPayment = string(rcv.TempPayment())
-	t.Emoji = string(rcv.Emoji())
-}
-
-func (rcv *MessageEvent) UnPack() *MessageEventT {
-	if rcv == nil { return nil }
-	t := &MessageEventT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type MessageEvent struct {
 	_tab flatbuffers.Table
 }
@@ -317,8 +200,41 @@ func (rcv *MessageEvent) Emoji() []byte {
 	return nil
 }
 
+func (rcv *MessageEvent) Sticks(obj *Sticker, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *MessageEvent) SticksLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *MessageEvent) SnipSize(obj *Offset) *Offset {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(40))
+	if o != 0 {
+		x := o + rcv._tab.Pos
+		if obj == nil {
+			obj = new(Offset)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
 func MessageEventStart(builder *flatbuffers.Builder) {
-	builder.StartObject(17)
+	builder.StartObject(19)
 }
 func MessageEventAddChatId(builder *flatbuffers.Builder, chatId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(chatId), 0)
@@ -376,6 +292,15 @@ func MessageEventAddTempPayment(builder *flatbuffers.Builder, tempPayment flatbu
 }
 func MessageEventAddEmoji(builder *flatbuffers.Builder, emoji flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(16, flatbuffers.UOffsetT(emoji), 0)
+}
+func MessageEventAddSticks(builder *flatbuffers.Builder, sticks flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(17, flatbuffers.UOffsetT(sticks), 0)
+}
+func MessageEventStartSticksVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
+func MessageEventAddSnipSize(builder *flatbuffers.Builder, snipSize flatbuffers.UOffsetT) {
+	builder.PrependStructSlot(18, flatbuffers.UOffsetT(snipSize), 0)
 }
 func MessageEventEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
