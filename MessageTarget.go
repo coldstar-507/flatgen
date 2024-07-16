@@ -8,7 +8,7 @@ import (
 
 type MessageTargetT struct {
 	UserId string `json:"user_id"`
-	DeviceId string `json:"device_id"`
+	DeviceId uint32 `json:"device_id"`
 	Token string `json:"token"`
 	ShowNotif bool `json:"show_notif"`
 	DoPush bool `json:"do_push"`
@@ -17,11 +17,10 @@ type MessageTargetT struct {
 func (t *MessageTargetT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil { return 0 }
 	userIdOffset := builder.CreateString(t.UserId)
-	deviceIdOffset := builder.CreateString(t.DeviceId)
 	tokenOffset := builder.CreateString(t.Token)
 	MessageTargetStart(builder)
 	MessageTargetAddUserId(builder, userIdOffset)
-	MessageTargetAddDeviceId(builder, deviceIdOffset)
+	MessageTargetAddDeviceId(builder, t.DeviceId)
 	MessageTargetAddToken(builder, tokenOffset)
 	MessageTargetAddShowNotif(builder, t.ShowNotif)
 	MessageTargetAddDoPush(builder, t.DoPush)
@@ -30,7 +29,7 @@ func (t *MessageTargetT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 
 func (rcv *MessageTarget) UnPackTo(t *MessageTargetT) {
 	t.UserId = string(rcv.UserId())
-	t.DeviceId = string(rcv.DeviceId())
+	t.DeviceId = rcv.DeviceId()
 	t.Token = string(rcv.Token())
 	t.ShowNotif = rcv.ShowNotif()
 	t.DoPush = rcv.DoPush()
@@ -78,12 +77,16 @@ func (rcv *MessageTarget) UserId() []byte {
 	return nil
 }
 
-func (rcv *MessageTarget) DeviceId() []byte {
+func (rcv *MessageTarget) DeviceId() uint32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
 	}
-	return nil
+	return 0
+}
+
+func (rcv *MessageTarget) MutateDeviceId(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(6, n)
 }
 
 func (rcv *MessageTarget) Token() []byte {
@@ -124,8 +127,8 @@ func MessageTargetStart(builder *flatbuffers.Builder) {
 func MessageTargetAddUserId(builder *flatbuffers.Builder, userId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(userId), 0)
 }
-func MessageTargetAddDeviceId(builder *flatbuffers.Builder, deviceId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(deviceId), 0)
+func MessageTargetAddDeviceId(builder *flatbuffers.Builder, deviceId uint32) {
+	builder.PrependUint32Slot(1, deviceId, 0)
 }
 func MessageTargetAddToken(builder *flatbuffers.Builder, token flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(token), 0)

@@ -7,25 +7,25 @@ import (
 )
 
 type PushRequestT struct {
-	TimeId *TimeIdT `json:"time_id"`
+	PushId *PushIdT `json:"push_id"`
 	Payload []byte `json:"payload"`
 }
 
 func (t *PushRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil { return 0 }
-	timeIdOffset := t.TimeId.Pack(builder)
+	pushIdOffset := t.PushId.Pack(builder)
 	payloadOffset := flatbuffers.UOffsetT(0)
 	if t.Payload != nil {
 		payloadOffset = builder.CreateByteString(t.Payload)
 	}
 	PushRequestStart(builder)
-	PushRequestAddTimeId(builder, timeIdOffset)
+	PushRequestAddPushId(builder, pushIdOffset)
 	PushRequestAddPayload(builder, payloadOffset)
 	return PushRequestEnd(builder)
 }
 
 func (rcv *PushRequest) UnPackTo(t *PushRequestT) {
-	t.TimeId = rcv.TimeId(nil).UnPack()
+	t.PushId = rcv.PushId(nil).UnPack()
 	t.Payload = rcv.PayloadBytes()
 }
 
@@ -63,12 +63,12 @@ func (rcv *PushRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *PushRequest) TimeId(obj *TimeId) *TimeId {
+func (rcv *PushRequest) PushId(obj *PushId) *PushId {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
-			obj = new(TimeId)
+			obj = new(PushId)
 		}
 		obj.Init(rcv._tab.Bytes, x)
 		return obj
@@ -113,8 +113,8 @@ func (rcv *PushRequest) MutatePayload(j int, n byte) bool {
 func PushRequestStart(builder *flatbuffers.Builder) {
 	builder.StartObject(2)
 }
-func PushRequestAddTimeId(builder *flatbuffers.Builder, timeId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(timeId), 0)
+func PushRequestAddPushId(builder *flatbuffers.Builder, pushId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(pushId), 0)
 }
 func PushRequestAddPayload(builder *flatbuffers.Builder, payload flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(payload), 0)

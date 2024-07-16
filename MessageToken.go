@@ -7,22 +7,21 @@ import (
 )
 
 type MessageTokenT struct {
-	DeviceId string `json:"device_id"`
+	DeviceId uint32 `json:"device_id"`
 	Token string `json:"token"`
 }
 
 func (t *MessageTokenT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil { return 0 }
-	deviceIdOffset := builder.CreateString(t.DeviceId)
 	tokenOffset := builder.CreateString(t.Token)
 	MessageTokenStart(builder)
-	MessageTokenAddDeviceId(builder, deviceIdOffset)
+	MessageTokenAddDeviceId(builder, t.DeviceId)
 	MessageTokenAddToken(builder, tokenOffset)
 	return MessageTokenEnd(builder)
 }
 
 func (rcv *MessageToken) UnPackTo(t *MessageTokenT) {
-	t.DeviceId = string(rcv.DeviceId())
+	t.DeviceId = rcv.DeviceId()
 	t.Token = string(rcv.Token())
 }
 
@@ -60,12 +59,16 @@ func (rcv *MessageToken) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MessageToken) DeviceId() []byte {
+func (rcv *MessageToken) DeviceId() uint32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
 	}
-	return nil
+	return 0
+}
+
+func (rcv *MessageToken) MutateDeviceId(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(4, n)
 }
 
 func (rcv *MessageToken) Token() []byte {
@@ -79,8 +82,8 @@ func (rcv *MessageToken) Token() []byte {
 func MessageTokenStart(builder *flatbuffers.Builder) {
 	builder.StartObject(2)
 }
-func MessageTokenAddDeviceId(builder *flatbuffers.Builder, deviceId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(deviceId), 0)
+func MessageTokenAddDeviceId(builder *flatbuffers.Builder, deviceId uint32) {
+	builder.PrependUint32Slot(0, deviceId, 0)
 }
 func MessageTokenAddToken(builder *flatbuffers.Builder, token flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(token), 0)

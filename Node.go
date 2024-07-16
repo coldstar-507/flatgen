@@ -8,6 +8,7 @@ import (
 
 type NodeT struct {
 	Id string `json:"id"`
+	Tag string `json:"tag"`
 	Type string `json:"type"`
 	Name string `json:"name"`
 	LastName string `json:"last_name"`
@@ -15,7 +16,7 @@ type NodeT struct {
 	LastUpdate int64 `json:"last_update"`
 	Description string `json:"description"`
 	MessagingTokens []*MessageTokenT `json:"messaging_tokens"`
-	MainDeviceId string `json:"main_device_id"`
+	MainDeviceId uint32 `json:"main_device_id"`
 	HashTree []*HashTreeT `json:"hash_tree"`
 	OwnerId string `json:"owner_id"`
 	IsPublic bool `json:"is_public"`
@@ -25,7 +26,7 @@ type NodeT struct {
 	Admins []string `json:"admins"`
 	Members []string `json:"members"`
 	Privates []string `json:"privates"`
-	DeviceId string `json:"device_id"`
+	DeviceId uint32 `json:"device_id"`
 	Neuter string `json:"neuter"`
 	Latitude float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
@@ -34,6 +35,7 @@ type NodeT struct {
 func (t *NodeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil { return 0 }
 	idOffset := builder.CreateString(t.Id)
+	tagOffset := builder.CreateString(t.Tag)
 	type_Offset := builder.CreateString(t.Type)
 	nameOffset := builder.CreateString(t.Name)
 	lastNameOffset := builder.CreateString(t.LastName)
@@ -52,7 +54,6 @@ func (t *NodeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		}
 		messagingTokensOffset = builder.EndVector(messagingTokensLength)
 	}
-	mainDeviceIdOffset := builder.CreateString(t.MainDeviceId)
 	hashTreeOffset := flatbuffers.UOffsetT(0)
 	if t.HashTree != nil {
 		hashTreeLength := len(t.HashTree)
@@ -133,10 +134,10 @@ func (t *NodeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		}
 		privatesOffset = builder.EndVector(privatesLength)
 	}
-	deviceIdOffset := builder.CreateString(t.DeviceId)
 	neuterOffset := builder.CreateString(t.Neuter)
 	NodeStart(builder)
 	NodeAddId(builder, idOffset)
+	NodeAddTag(builder, tagOffset)
 	NodeAddType(builder, type_Offset)
 	NodeAddName(builder, nameOffset)
 	NodeAddLastName(builder, lastNameOffset)
@@ -144,7 +145,7 @@ func (t *NodeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	NodeAddLastUpdate(builder, t.LastUpdate)
 	NodeAddDescription(builder, descriptionOffset)
 	NodeAddMessagingTokens(builder, messagingTokensOffset)
-	NodeAddMainDeviceId(builder, mainDeviceIdOffset)
+	NodeAddMainDeviceId(builder, t.MainDeviceId)
 	NodeAddHashTree(builder, hashTreeOffset)
 	NodeAddOwnerId(builder, ownerIdOffset)
 	NodeAddIsPublic(builder, t.IsPublic)
@@ -154,7 +155,7 @@ func (t *NodeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	NodeAddAdmins(builder, adminsOffset)
 	NodeAddMembers(builder, membersOffset)
 	NodeAddPrivates(builder, privatesOffset)
-	NodeAddDeviceId(builder, deviceIdOffset)
+	NodeAddDeviceId(builder, t.DeviceId)
 	NodeAddNeuter(builder, neuterOffset)
 	NodeAddLatitude(builder, t.Latitude)
 	NodeAddLongitude(builder, t.Longitude)
@@ -163,6 +164,7 @@ func (t *NodeT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 
 func (rcv *Node) UnPackTo(t *NodeT) {
 	t.Id = string(rcv.Id())
+	t.Tag = string(rcv.Tag())
 	t.Type = string(rcv.Type())
 	t.Name = string(rcv.Name())
 	t.LastName = string(rcv.LastName())
@@ -176,7 +178,7 @@ func (rcv *Node) UnPackTo(t *NodeT) {
 		rcv.MessagingTokens(&x, j)
 		t.MessagingTokens[j] = x.UnPack()
 	}
-	t.MainDeviceId = string(rcv.MainDeviceId())
+	t.MainDeviceId = rcv.MainDeviceId()
 	hashTreeLength := rcv.HashTreeLength()
 	t.HashTree = make([]*HashTreeT, hashTreeLength)
 	for j := 0; j < hashTreeLength; j++ {
@@ -212,7 +214,7 @@ func (rcv *Node) UnPackTo(t *NodeT) {
 	for j := 0; j < privatesLength; j++ {
 		t.Privates[j] = string(rcv.Privates(j))
 	}
-	t.DeviceId = string(rcv.DeviceId())
+	t.DeviceId = rcv.DeviceId()
 	t.Neuter = string(rcv.Neuter())
 	t.Latitude = rcv.Latitude()
 	t.Longitude = rcv.Longitude()
@@ -260,7 +262,7 @@ func (rcv *Node) Id() []byte {
 	return nil
 }
 
-func (rcv *Node) Type() []byte {
+func (rcv *Node) Tag() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -268,7 +270,7 @@ func (rcv *Node) Type() []byte {
 	return nil
 }
 
-func (rcv *Node) Name() []byte {
+func (rcv *Node) Type() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -276,7 +278,7 @@ func (rcv *Node) Name() []byte {
 	return nil
 }
 
-func (rcv *Node) LastName() []byte {
+func (rcv *Node) Name() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -284,7 +286,7 @@ func (rcv *Node) LastName() []byte {
 	return nil
 }
 
-func (rcv *Node) BlueHash() []byte {
+func (rcv *Node) LastName() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -292,8 +294,16 @@ func (rcv *Node) BlueHash() []byte {
 	return nil
 }
 
-func (rcv *Node) LastUpdate() int64 {
+func (rcv *Node) BlueHash() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Node) LastUpdate() int64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
@@ -301,11 +311,11 @@ func (rcv *Node) LastUpdate() int64 {
 }
 
 func (rcv *Node) MutateLastUpdate(n int64) bool {
-	return rcv._tab.MutateInt64Slot(14, n)
+	return rcv._tab.MutateInt64Slot(16, n)
 }
 
 func (rcv *Node) Description() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -313,7 +323,7 @@ func (rcv *Node) Description() []byte {
 }
 
 func (rcv *Node) MessagingTokens(obj *MessageToken, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -325,23 +335,27 @@ func (rcv *Node) MessagingTokens(obj *MessageToken, j int) bool {
 }
 
 func (rcv *Node) MessagingTokensLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
 	return 0
 }
 
-func (rcv *Node) MainDeviceId() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+func (rcv *Node) MainDeviceId() uint32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
 	}
-	return nil
+	return 0
+}
+
+func (rcv *Node) MutateMainDeviceId(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(22, n)
 }
 
 func (rcv *Node) HashTree(obj *HashTree, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -353,7 +367,7 @@ func (rcv *Node) HashTree(obj *HashTree, j int) bool {
 }
 
 func (rcv *Node) HashTreeLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -361,7 +375,7 @@ func (rcv *Node) HashTreeLength() int {
 }
 
 func (rcv *Node) OwnerId() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -369,7 +383,7 @@ func (rcv *Node) OwnerId() []byte {
 }
 
 func (rcv *Node) IsPublic() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
 	}
@@ -377,11 +391,11 @@ func (rcv *Node) IsPublic() bool {
 }
 
 func (rcv *Node) MutateIsPublic(n bool) bool {
-	return rcv._tab.MutateBoolSlot(26, n)
+	return rcv._tab.MutateBoolSlot(28, n)
 }
 
 func (rcv *Node) MediaId() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -389,7 +403,7 @@ func (rcv *Node) MediaId() []byte {
 }
 
 func (rcv *Node) Children(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -398,7 +412,7 @@ func (rcv *Node) Children(j int) []byte {
 }
 
 func (rcv *Node) ChildrenLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -406,7 +420,7 @@ func (rcv *Node) ChildrenLength() int {
 }
 
 func (rcv *Node) Posts(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -415,7 +429,7 @@ func (rcv *Node) Posts(j int) []byte {
 }
 
 func (rcv *Node) PostsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -423,7 +437,7 @@ func (rcv *Node) PostsLength() int {
 }
 
 func (rcv *Node) Admins(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -432,7 +446,7 @@ func (rcv *Node) Admins(j int) []byte {
 }
 
 func (rcv *Node) AdminsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -440,7 +454,7 @@ func (rcv *Node) AdminsLength() int {
 }
 
 func (rcv *Node) Members(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -449,7 +463,7 @@ func (rcv *Node) Members(j int) []byte {
 }
 
 func (rcv *Node) MembersLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -457,7 +471,7 @@ func (rcv *Node) MembersLength() int {
 }
 
 func (rcv *Node) Privates(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(40))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -466,23 +480,27 @@ func (rcv *Node) Privates(j int) []byte {
 }
 
 func (rcv *Node) PrivatesLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(40))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
 	return 0
 }
 
-func (rcv *Node) DeviceId() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(40))
+func (rcv *Node) DeviceId() uint32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(42))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
 	}
-	return nil
+	return 0
+}
+
+func (rcv *Node) MutateDeviceId(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(42, n)
 }
 
 func (rcv *Node) Neuter() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(42))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(44))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -490,18 +508,6 @@ func (rcv *Node) Neuter() []byte {
 }
 
 func (rcv *Node) Latitude() float64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(44))
-	if o != 0 {
-		return rcv._tab.GetFloat64(o + rcv._tab.Pos)
-	}
-	return 0.0
-}
-
-func (rcv *Node) MutateLatitude(n float64) bool {
-	return rcv._tab.MutateFloat64Slot(44, n)
-}
-
-func (rcv *Node) Longitude() float64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(46))
 	if o != 0 {
 		return rcv._tab.GetFloat64(o + rcv._tab.Pos)
@@ -509,99 +515,114 @@ func (rcv *Node) Longitude() float64 {
 	return 0.0
 }
 
-func (rcv *Node) MutateLongitude(n float64) bool {
+func (rcv *Node) MutateLatitude(n float64) bool {
 	return rcv._tab.MutateFloat64Slot(46, n)
 }
 
+func (rcv *Node) Longitude() float64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(48))
+	if o != 0 {
+		return rcv._tab.GetFloat64(o + rcv._tab.Pos)
+	}
+	return 0.0
+}
+
+func (rcv *Node) MutateLongitude(n float64) bool {
+	return rcv._tab.MutateFloat64Slot(48, n)
+}
+
 func NodeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(22)
+	builder.StartObject(23)
 }
 func NodeAddId(builder *flatbuffers.Builder, id flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(id), 0)
 }
+func NodeAddTag(builder *flatbuffers.Builder, tag flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(tag), 0)
+}
 func NodeAddType(builder *flatbuffers.Builder, type_ flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(type_), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(type_), 0)
 }
 func NodeAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(name), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(name), 0)
 }
 func NodeAddLastName(builder *flatbuffers.Builder, lastName flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(lastName), 0)
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(lastName), 0)
 }
 func NodeAddBlueHash(builder *flatbuffers.Builder, blueHash flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(blueHash), 0)
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(blueHash), 0)
 }
 func NodeAddLastUpdate(builder *flatbuffers.Builder, lastUpdate int64) {
-	builder.PrependInt64Slot(5, lastUpdate, 0)
+	builder.PrependInt64Slot(6, lastUpdate, 0)
 }
 func NodeAddDescription(builder *flatbuffers.Builder, description flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(description), 0)
+	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(description), 0)
 }
 func NodeAddMessagingTokens(builder *flatbuffers.Builder, messagingTokens flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(messagingTokens), 0)
+	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(messagingTokens), 0)
 }
 func NodeStartMessagingTokensVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func NodeAddMainDeviceId(builder *flatbuffers.Builder, mainDeviceId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(mainDeviceId), 0)
+func NodeAddMainDeviceId(builder *flatbuffers.Builder, mainDeviceId uint32) {
+	builder.PrependUint32Slot(9, mainDeviceId, 0)
 }
 func NodeAddHashTree(builder *flatbuffers.Builder, hashTree flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(9, flatbuffers.UOffsetT(hashTree), 0)
+	builder.PrependUOffsetTSlot(10, flatbuffers.UOffsetT(hashTree), 0)
 }
 func NodeStartHashTreeVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func NodeAddOwnerId(builder *flatbuffers.Builder, ownerId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(10, flatbuffers.UOffsetT(ownerId), 0)
+	builder.PrependUOffsetTSlot(11, flatbuffers.UOffsetT(ownerId), 0)
 }
 func NodeAddIsPublic(builder *flatbuffers.Builder, isPublic bool) {
-	builder.PrependBoolSlot(11, isPublic, false)
+	builder.PrependBoolSlot(12, isPublic, false)
 }
 func NodeAddMediaId(builder *flatbuffers.Builder, mediaId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(12, flatbuffers.UOffsetT(mediaId), 0)
+	builder.PrependUOffsetTSlot(13, flatbuffers.UOffsetT(mediaId), 0)
 }
 func NodeAddChildren(builder *flatbuffers.Builder, children flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(13, flatbuffers.UOffsetT(children), 0)
+	builder.PrependUOffsetTSlot(14, flatbuffers.UOffsetT(children), 0)
 }
 func NodeStartChildrenVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func NodeAddPosts(builder *flatbuffers.Builder, posts flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(14, flatbuffers.UOffsetT(posts), 0)
+	builder.PrependUOffsetTSlot(15, flatbuffers.UOffsetT(posts), 0)
 }
 func NodeStartPostsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func NodeAddAdmins(builder *flatbuffers.Builder, admins flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(15, flatbuffers.UOffsetT(admins), 0)
+	builder.PrependUOffsetTSlot(16, flatbuffers.UOffsetT(admins), 0)
 }
 func NodeStartAdminsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func NodeAddMembers(builder *flatbuffers.Builder, members flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(16, flatbuffers.UOffsetT(members), 0)
+	builder.PrependUOffsetTSlot(17, flatbuffers.UOffsetT(members), 0)
 }
 func NodeStartMembersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func NodeAddPrivates(builder *flatbuffers.Builder, privates flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(17, flatbuffers.UOffsetT(privates), 0)
+	builder.PrependUOffsetTSlot(18, flatbuffers.UOffsetT(privates), 0)
 }
 func NodeStartPrivatesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func NodeAddDeviceId(builder *flatbuffers.Builder, deviceId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(18, flatbuffers.UOffsetT(deviceId), 0)
+func NodeAddDeviceId(builder *flatbuffers.Builder, deviceId uint32) {
+	builder.PrependUint32Slot(19, deviceId, 0)
 }
 func NodeAddNeuter(builder *flatbuffers.Builder, neuter flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(19, flatbuffers.UOffsetT(neuter), 0)
+	builder.PrependUOffsetTSlot(20, flatbuffers.UOffsetT(neuter), 0)
 }
 func NodeAddLatitude(builder *flatbuffers.Builder, latitude float64) {
-	builder.PrependFloat64Slot(20, latitude, 0.0)
+	builder.PrependFloat64Slot(21, latitude, 0.0)
 }
 func NodeAddLongitude(builder *flatbuffers.Builder, longitude float64) {
-	builder.PrependFloat64Slot(21, longitude, 0.0)
+	builder.PrependFloat64Slot(22, longitude, 0.0)
 }
 func NodeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
