@@ -12,7 +12,9 @@ type PushRequestT struct {
 }
 
 func (t *PushRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	pushIdOffset := t.PushId.Pack(builder)
 	payloadOffset := flatbuffers.UOffsetT(0)
 	if t.Payload != nil {
@@ -30,7 +32,9 @@ func (rcv *PushRequest) UnPackTo(t *PushRequestT) {
 }
 
 func (rcv *PushRequest) UnPack() *PushRequestT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &PushRequestT{}
 	rcv.UnPackTo(t)
 	return t
@@ -47,11 +51,19 @@ func GetRootAsPushRequest(buf []byte, offset flatbuffers.UOffsetT) *PushRequest 
 	return x
 }
 
+func FinishPushRequestBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsPushRequest(buf []byte, offset flatbuffers.UOffsetT) *PushRequest {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &PushRequest{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedPushRequestBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *PushRequest) Init(buf []byte, i flatbuffers.UOffsetT) {

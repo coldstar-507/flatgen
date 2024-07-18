@@ -18,13 +18,33 @@ type SnipT struct {
 }
 
 func (t *SnipT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	chatIdOffset := builder.CreateString(t.ChatId)
-	senderIdOffset := builder.CreateString(t.SenderId)
-	tagOffset := builder.CreateString(t.Tag)
-	mediaIdOffset := builder.CreateString(t.MediaId)
-	tempMediaOffset := builder.CreateString(t.TempMedia)
-	txtOffset := builder.CreateString(t.Txt)
+	if t == nil {
+		return 0
+	}
+	chatIdOffset := flatbuffers.UOffsetT(0)
+	if t.ChatId != "" {
+		chatIdOffset = builder.CreateString(t.ChatId)
+	}
+	senderIdOffset := flatbuffers.UOffsetT(0)
+	if t.SenderId != "" {
+		senderIdOffset = builder.CreateString(t.SenderId)
+	}
+	tagOffset := flatbuffers.UOffsetT(0)
+	if t.Tag != "" {
+		tagOffset = builder.CreateString(t.Tag)
+	}
+	mediaIdOffset := flatbuffers.UOffsetT(0)
+	if t.MediaId != "" {
+		mediaIdOffset = builder.CreateString(t.MediaId)
+	}
+	tempMediaOffset := flatbuffers.UOffsetT(0)
+	if t.TempMedia != "" {
+		tempMediaOffset = builder.CreateString(t.TempMedia)
+	}
+	txtOffset := flatbuffers.UOffsetT(0)
+	if t.Txt != "" {
+		txtOffset = builder.CreateString(t.Txt)
+	}
 	sticksOffset := flatbuffers.UOffsetT(0)
 	if t.Sticks != nil {
 		sticksLength := len(t.Sticks)
@@ -69,7 +89,9 @@ func (rcv *Snip) UnPackTo(t *SnipT) {
 }
 
 func (rcv *Snip) UnPack() *SnipT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &SnipT{}
 	rcv.UnPackTo(t)
 	return t
@@ -86,11 +108,19 @@ func GetRootAsSnip(buf []byte, offset flatbuffers.UOffsetT) *Snip {
 	return x
 }
 
+func FinishSnipBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsSnip(buf []byte, offset flatbuffers.UOffsetT) *Snip {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &Snip{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedSnipBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *Snip) Init(buf []byte, i flatbuffers.UOffsetT) {

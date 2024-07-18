@@ -14,7 +14,9 @@ type MessageEventRequestT struct {
 }
 
 func (t *MessageEventRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	messageEventOffset := t.MessageEvent.Pack(builder)
 	fullMediaOffset := t.FullMedia.Pack(builder)
 	notificationsOffset := t.Notifications.Pack(builder)
@@ -34,7 +36,9 @@ func (rcv *MessageEventRequest) UnPackTo(t *MessageEventRequestT) {
 }
 
 func (rcv *MessageEventRequest) UnPack() *MessageEventRequestT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &MessageEventRequestT{}
 	rcv.UnPackTo(t)
 	return t
@@ -51,11 +55,19 @@ func GetRootAsMessageEventRequest(buf []byte, offset flatbuffers.UOffsetT) *Mess
 	return x
 }
 
+func FinishMessageEventRequestBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsMessageEventRequest(buf []byte, offset flatbuffers.UOffsetT) *MessageEventRequest {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &MessageEventRequest{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedMessageEventRequestBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *MessageEventRequest) Init(buf []byte, i flatbuffers.UOffsetT) {

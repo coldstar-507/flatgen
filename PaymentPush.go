@@ -12,9 +12,17 @@ type PaymentPushT struct {
 }
 
 func (t *PaymentPushT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	idOffset := builder.CreateString(t.Id)
-	tempIdOffset := builder.CreateString(t.TempId)
+	if t == nil {
+		return 0
+	}
+	idOffset := flatbuffers.UOffsetT(0)
+	if t.Id != "" {
+		idOffset = builder.CreateString(t.Id)
+	}
+	tempIdOffset := flatbuffers.UOffsetT(0)
+	if t.TempId != "" {
+		tempIdOffset = builder.CreateString(t.TempId)
+	}
 	PaymentPushStart(builder)
 	PaymentPushAddId(builder, idOffset)
 	PaymentPushAddTempId(builder, tempIdOffset)
@@ -27,7 +35,9 @@ func (rcv *PaymentPush) UnPackTo(t *PaymentPushT) {
 }
 
 func (rcv *PaymentPush) UnPack() *PaymentPushT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &PaymentPushT{}
 	rcv.UnPackTo(t)
 	return t
@@ -44,11 +54,19 @@ func GetRootAsPaymentPush(buf []byte, offset flatbuffers.UOffsetT) *PaymentPush 
 	return x
 }
 
+func FinishPaymentPushBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsPaymentPush(buf []byte, offset flatbuffers.UOffsetT) *PaymentPush {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &PaymentPush{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedPaymentPushBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *PaymentPush) Init(buf []byte, i flatbuffers.UOffsetT) {

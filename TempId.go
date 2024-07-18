@@ -14,7 +14,9 @@ type TempIdT struct {
 }
 
 func (t *TempIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	TempIdStart(builder)
 	TempIdAddTimestamp(builder, t.Timestamp)
 	TempIdAddU32(builder, t.U32)
@@ -31,7 +33,9 @@ func (rcv *TempId) UnPackTo(t *TempIdT) {
 }
 
 func (rcv *TempId) UnPack() *TempIdT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &TempIdT{}
 	rcv.UnPackTo(t)
 	return t
@@ -48,11 +52,19 @@ func GetRootAsTempId(buf []byte, offset flatbuffers.UOffsetT) *TempId {
 	return x
 }
 
+func FinishTempIdBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsTempId(buf []byte, offset flatbuffers.UOffsetT) *TempId {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &TempId{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedTempIdBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *TempId) Init(buf []byte, i flatbuffers.UOffsetT) {

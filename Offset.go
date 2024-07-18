@@ -12,7 +12,9 @@ type OffsetT struct {
 }
 
 func (t *OffsetT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	return CreateOffset(builder, t.X, t.Y)
 }
 func (rcv *Offset) UnPackTo(t *OffsetT) {
@@ -21,7 +23,9 @@ func (rcv *Offset) UnPackTo(t *OffsetT) {
 }
 
 func (rcv *Offset) UnPack() *OffsetT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &OffsetT{}
 	rcv.UnPackTo(t)
 	return t

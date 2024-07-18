@@ -15,8 +15,13 @@ type MessageIdT struct {
 }
 
 func (t *MessageIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	rootOffset := builder.CreateString(t.Root)
+	if t == nil {
+		return 0
+	}
+	rootOffset := flatbuffers.UOffsetT(0)
+	if t.Root != "" {
+		rootOffset = builder.CreateString(t.Root)
+	}
 	MessageIdStart(builder)
 	MessageIdAddTimestamp(builder, t.Timestamp)
 	MessageIdAddU32(builder, t.U32)
@@ -35,7 +40,9 @@ func (rcv *MessageId) UnPackTo(t *MessageIdT) {
 }
 
 func (rcv *MessageId) UnPack() *MessageIdT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &MessageIdT{}
 	rcv.UnPackTo(t)
 	return t
@@ -52,11 +59,19 @@ func GetRootAsMessageId(buf []byte, offset flatbuffers.UOffsetT) *MessageId {
 	return x
 }
 
+func FinishMessageIdBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsMessageId(buf []byte, offset flatbuffers.UOffsetT) *MessageId {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &MessageId{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedMessageIdBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *MessageId) Init(buf []byte, i flatbuffers.UOffsetT) {

@@ -15,11 +15,25 @@ type NotificationsT struct {
 }
 
 func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	senderOffset := builder.CreateString(t.Sender)
-	rootOffset := builder.CreateString(t.Root)
-	headerOffset := builder.CreateString(t.Header)
-	bodyOffset := builder.CreateString(t.Body)
+	if t == nil {
+		return 0
+	}
+	senderOffset := flatbuffers.UOffsetT(0)
+	if t.Sender != "" {
+		senderOffset = builder.CreateString(t.Sender)
+	}
+	rootOffset := flatbuffers.UOffsetT(0)
+	if t.Root != "" {
+		rootOffset = builder.CreateString(t.Root)
+	}
+	headerOffset := flatbuffers.UOffsetT(0)
+	if t.Header != "" {
+		headerOffset = builder.CreateString(t.Header)
+	}
+	bodyOffset := flatbuffers.UOffsetT(0)
+	if t.Body != "" {
+		bodyOffset = builder.CreateString(t.Body)
+	}
 	targetsOffset := flatbuffers.UOffsetT(0)
 	if t.Targets != nil {
 		targetsLength := len(t.Targets)
@@ -57,7 +71,9 @@ func (rcv *Notifications) UnPackTo(t *NotificationsT) {
 }
 
 func (rcv *Notifications) UnPack() *NotificationsT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &NotificationsT{}
 	rcv.UnPackTo(t)
 	return t
@@ -74,11 +90,19 @@ func GetRootAsNotifications(buf []byte, offset flatbuffers.UOffsetT) *Notificati
 	return x
 }
 
+func FinishNotificationsBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsNotifications(buf []byte, offset flatbuffers.UOffsetT) *Notifications {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &Notifications{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedNotificationsBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *Notifications) Init(buf []byte, i flatbuffers.UOffsetT) {

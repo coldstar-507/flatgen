@@ -15,8 +15,13 @@ type PushIdT struct {
 }
 
 func (t *PushIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	rootOffset := builder.CreateString(t.Root)
+	if t == nil {
+		return 0
+	}
+	rootOffset := flatbuffers.UOffsetT(0)
+	if t.Root != "" {
+		rootOffset = builder.CreateString(t.Root)
+	}
 	PushIdStart(builder)
 	PushIdAddU32(builder, t.U32)
 	PushIdAddTimestamp(builder, t.Timestamp)
@@ -35,7 +40,9 @@ func (rcv *PushId) UnPackTo(t *PushIdT) {
 }
 
 func (rcv *PushId) UnPack() *PushIdT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &PushIdT{}
 	rcv.UnPackTo(t)
 	return t
@@ -52,11 +59,19 @@ func GetRootAsPushId(buf []byte, offset flatbuffers.UOffsetT) *PushId {
 	return x
 }
 
+func FinishPushIdBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsPushId(buf []byte, offset flatbuffers.UOffsetT) *PushId {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &PushId{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedPushIdBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *PushId) Init(buf []byte, i flatbuffers.UOffsetT) {

@@ -12,8 +12,13 @@ type ChatScrollRequestT struct {
 }
 
 func (t *ChatScrollRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	chatIdOffset := builder.CreateString(t.ChatId)
+	if t == nil {
+		return 0
+	}
+	chatIdOffset := flatbuffers.UOffsetT(0)
+	if t.ChatId != "" {
+		chatIdOffset = builder.CreateString(t.ChatId)
+	}
 	ChatScrollRequestStart(builder)
 	ChatScrollRequestAddChatId(builder, chatIdOffset)
 	ChatScrollRequestAddBefore(builder, t.Before)
@@ -26,7 +31,9 @@ func (rcv *ChatScrollRequest) UnPackTo(t *ChatScrollRequestT) {
 }
 
 func (rcv *ChatScrollRequest) UnPack() *ChatScrollRequestT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &ChatScrollRequestT{}
 	rcv.UnPackTo(t)
 	return t
@@ -43,11 +50,19 @@ func GetRootAsChatScrollRequest(buf []byte, offset flatbuffers.UOffsetT) *ChatSc
 	return x
 }
 
+func FinishChatScrollRequestBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsChatScrollRequest(buf []byte, offset flatbuffers.UOffsetT) *ChatScrollRequest {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &ChatScrollRequest{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedChatScrollRequestBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *ChatScrollRequest) Init(buf []byte, i flatbuffers.UOffsetT) {

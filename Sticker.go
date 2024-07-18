@@ -17,10 +17,21 @@ type StickerT struct {
 }
 
 func (t *StickerT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	mediaIdOffset := builder.CreateString(t.MediaId)
-	tempOffset := builder.CreateString(t.Temp)
-	emojiOffset := builder.CreateString(t.Emoji)
+	if t == nil {
+		return 0
+	}
+	mediaIdOffset := flatbuffers.UOffsetT(0)
+	if t.MediaId != "" {
+		mediaIdOffset = builder.CreateString(t.MediaId)
+	}
+	tempOffset := flatbuffers.UOffsetT(0)
+	if t.Temp != "" {
+		tempOffset = builder.CreateString(t.Temp)
+	}
+	emojiOffset := flatbuffers.UOffsetT(0)
+	if t.Emoji != "" {
+		emojiOffset = builder.CreateString(t.Emoji)
+	}
 	StickerStart(builder)
 	StickerAddMediaId(builder, mediaIdOffset)
 	StickerAddTemp(builder, tempOffset)
@@ -45,7 +56,9 @@ func (rcv *Sticker) UnPackTo(t *StickerT) {
 }
 
 func (rcv *Sticker) UnPack() *StickerT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &StickerT{}
 	rcv.UnPackTo(t)
 	return t
@@ -62,11 +75,19 @@ func GetRootAsSticker(buf []byte, offset flatbuffers.UOffsetT) *Sticker {
 	return x
 }
 
+func FinishStickerBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsSticker(buf []byte, offset flatbuffers.UOffsetT) *Sticker {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &Sticker{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedStickerBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *Sticker) Init(buf []byte, i flatbuffers.UOffsetT) {

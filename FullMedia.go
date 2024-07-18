@@ -12,7 +12,9 @@ type FullMediaT struct {
 }
 
 func (t *FullMediaT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	metadataOffset := t.Metadata.Pack(builder)
 	dataOffset := flatbuffers.UOffsetT(0)
 	if t.Data != nil {
@@ -30,7 +32,9 @@ func (rcv *FullMedia) UnPackTo(t *FullMediaT) {
 }
 
 func (rcv *FullMedia) UnPack() *FullMediaT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &FullMediaT{}
 	rcv.UnPackTo(t)
 	return t
@@ -47,11 +51,19 @@ func GetRootAsFullMedia(buf []byte, offset flatbuffers.UOffsetT) *FullMedia {
 	return x
 }
 
+func FinishFullMediaBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsFullMedia(buf []byte, offset flatbuffers.UOffsetT) *FullMedia {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &FullMedia{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedFullMediaBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *FullMedia) Init(buf []byte, i flatbuffers.UOffsetT) {

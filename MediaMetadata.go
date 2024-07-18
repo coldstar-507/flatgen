@@ -21,11 +21,25 @@ type MediaMetadataT struct {
 }
 
 func (t *MediaMetadataT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	timeIdOffset := builder.CreateString(t.TimeId)
-	ownerIdOffset := builder.CreateString(t.OwnerId)
-	mimeOffset := builder.CreateString(t.Mime)
-	tempOffset := builder.CreateString(t.Temp)
+	if t == nil {
+		return 0
+	}
+	timeIdOffset := flatbuffers.UOffsetT(0)
+	if t.TimeId != "" {
+		timeIdOffset = builder.CreateString(t.TimeId)
+	}
+	ownerIdOffset := flatbuffers.UOffsetT(0)
+	if t.OwnerId != "" {
+		ownerIdOffset = builder.CreateString(t.OwnerId)
+	}
+	mimeOffset := flatbuffers.UOffsetT(0)
+	if t.Mime != "" {
+		mimeOffset = builder.CreateString(t.Mime)
+	}
+	tempOffset := flatbuffers.UOffsetT(0)
+	if t.Temp != "" {
+		tempOffset = builder.CreateString(t.Temp)
+	}
 	MediaMetadataStart(builder)
 	MediaMetadataAddTimeId(builder, timeIdOffset)
 	MediaMetadataAddOwnerId(builder, ownerIdOffset)
@@ -56,7 +70,9 @@ func (rcv *MediaMetadata) UnPackTo(t *MediaMetadataT) {
 }
 
 func (rcv *MediaMetadata) UnPack() *MediaMetadataT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &MediaMetadataT{}
 	rcv.UnPackTo(t)
 	return t
@@ -73,11 +89,19 @@ func GetRootAsMediaMetadata(buf []byte, offset flatbuffers.UOffsetT) *MediaMetad
 	return x
 }
 
+func FinishMediaMetadataBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsMediaMetadata(buf []byte, offset flatbuffers.UOffsetT) *MediaMetadata {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &MediaMetadata{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedMediaMetadataBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *MediaMetadata) Init(buf []byte, i flatbuffers.UOffsetT) {

@@ -13,8 +13,13 @@ type ScrollResT struct {
 }
 
 func (t *ScrollResT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	rootOffset := builder.CreateString(t.Root)
+	if t == nil {
+		return 0
+	}
+	rootOffset := flatbuffers.UOffsetT(0)
+	if t.Root != "" {
+		rootOffset = builder.CreateString(t.Root)
+	}
 	ScrollResStart(builder)
 	ScrollResAddCode(builder, t.Code)
 	ScrollResAddBefore(builder, t.Before)
@@ -29,7 +34,9 @@ func (rcv *ScrollRes) UnPackTo(t *ScrollResT) {
 }
 
 func (rcv *ScrollRes) UnPack() *ScrollResT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &ScrollResT{}
 	rcv.UnPackTo(t)
 	return t
@@ -46,11 +53,19 @@ func GetRootAsScrollRes(buf []byte, offset flatbuffers.UOffsetT) *ScrollRes {
 	return x
 }
 
+func FinishScrollResBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsScrollRes(buf []byte, offset flatbuffers.UOffsetT) *ScrollRes {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &ScrollRes{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedScrollResBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *ScrollRes) Init(buf []byte, i flatbuffers.UOffsetT) {

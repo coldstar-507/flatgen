@@ -12,7 +12,9 @@ type FullStickerT struct {
 }
 
 func (t *FullStickerT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	stickerOffset := t.Sticker.Pack(builder)
 	fullMediaOffset := t.FullMedia.Pack(builder)
 	FullStickerStart(builder)
@@ -27,7 +29,9 @@ func (rcv *FullSticker) UnPackTo(t *FullStickerT) {
 }
 
 func (rcv *FullSticker) UnPack() *FullStickerT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &FullStickerT{}
 	rcv.UnPackTo(t)
 	return t
@@ -44,11 +48,19 @@ func GetRootAsFullSticker(buf []byte, offset flatbuffers.UOffsetT) *FullSticker 
 	return x
 }
 
+func FinishFullStickerBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsFullSticker(buf []byte, offset flatbuffers.UOffsetT) *FullSticker {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &FullSticker{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedFullStickerBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *FullSticker) Init(buf []byte, i flatbuffers.UOffsetT) {

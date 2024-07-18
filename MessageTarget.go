@@ -15,9 +15,17 @@ type MessageTargetT struct {
 }
 
 func (t *MessageTargetT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
-	userIdOffset := builder.CreateString(t.UserId)
-	tokenOffset := builder.CreateString(t.Token)
+	if t == nil {
+		return 0
+	}
+	userIdOffset := flatbuffers.UOffsetT(0)
+	if t.UserId != "" {
+		userIdOffset = builder.CreateString(t.UserId)
+	}
+	tokenOffset := flatbuffers.UOffsetT(0)
+	if t.Token != "" {
+		tokenOffset = builder.CreateString(t.Token)
+	}
 	MessageTargetStart(builder)
 	MessageTargetAddUserId(builder, userIdOffset)
 	MessageTargetAddDeviceId(builder, t.DeviceId)
@@ -36,7 +44,9 @@ func (rcv *MessageTarget) UnPackTo(t *MessageTargetT) {
 }
 
 func (rcv *MessageTarget) UnPack() *MessageTargetT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &MessageTargetT{}
 	rcv.UnPackTo(t)
 	return t
@@ -53,11 +63,19 @@ func GetRootAsMessageTarget(buf []byte, offset flatbuffers.UOffsetT) *MessageTar
 	return x
 }
 
+func FinishMessageTargetBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.Finish(offset)
+}
+
 func GetSizePrefixedRootAsMessageTarget(buf []byte, offset flatbuffers.UOffsetT) *MessageTarget {
 	n := flatbuffers.GetUOffsetT(buf[offset+flatbuffers.SizeUint32:])
 	x := &MessageTarget{}
 	x.Init(buf, n+offset+flatbuffers.SizeUint32)
 	return x
+}
+
+func FinishSizePrefixedMessageTargetBuffer(builder *flatbuffers.Builder, offset flatbuffers.UOffsetT) {
+	builder.FinishSizePrefixed(offset)
 }
 
 func (rcv *MessageTarget) Init(buf []byte, i flatbuffers.UOffsetT) {
