@@ -9,6 +9,8 @@ import (
 type RootT struct {
 	Primary *NodeIdT `json:"primary"`
 	Secondary *NodeIdT `json:"secondary"`
+	Timestamp int64 `json:"timestamp"`
+	ChatPlace uint16 `json:"chat_place"`
 	Kind byte `json:"kind"`
 }
 
@@ -21,6 +23,8 @@ func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	RootStart(builder)
 	RootAddPrimary(builder, primaryOffset)
 	RootAddSecondary(builder, secondaryOffset)
+	RootAddTimestamp(builder, t.Timestamp)
+	RootAddChatPlace(builder, t.ChatPlace)
 	RootAddKind(builder, t.Kind)
 	return RootEnd(builder)
 }
@@ -28,6 +32,8 @@ func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 func (rcv *Root) UnPackTo(t *RootT) {
 	t.Primary = rcv.Primary(nil).UnPack()
 	t.Secondary = rcv.Secondary(nil).UnPack()
+	t.Timestamp = rcv.Timestamp()
+	t.ChatPlace = rcv.ChatPlace()
 	t.Kind = rcv.Kind()
 }
 
@@ -101,8 +107,32 @@ func (rcv *Root) Secondary(obj *NodeId) *NodeId {
 	return nil
 }
 
-func (rcv *Root) Kind() byte {
+func (rcv *Root) Timestamp() int64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Root) MutateTimestamp(n int64) bool {
+	return rcv._tab.MutateInt64Slot(8, n)
+}
+
+func (rcv *Root) ChatPlace() uint16 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.GetUint16(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Root) MutateChatPlace(n uint16) bool {
+	return rcv._tab.MutateUint16Slot(10, n)
+}
+
+func (rcv *Root) Kind() byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
 	}
@@ -110,11 +140,11 @@ func (rcv *Root) Kind() byte {
 }
 
 func (rcv *Root) MutateKind(n byte) bool {
-	return rcv._tab.MutateByteSlot(8, n)
+	return rcv._tab.MutateByteSlot(12, n)
 }
 
 func RootStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(5)
 }
 func RootAddPrimary(builder *flatbuffers.Builder, primary flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(primary), 0)
@@ -122,8 +152,14 @@ func RootAddPrimary(builder *flatbuffers.Builder, primary flatbuffers.UOffsetT) 
 func RootAddSecondary(builder *flatbuffers.Builder, secondary flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(secondary), 0)
 }
+func RootAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
+	builder.PrependInt64Slot(2, timestamp, 0)
+}
+func RootAddChatPlace(builder *flatbuffers.Builder, chatPlace uint16) {
+	builder.PrependUint16Slot(3, chatPlace, 0)
+}
 func RootAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(2, kind, 0)
+	builder.PrependByteSlot(4, kind, 0)
 }
 func RootEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
