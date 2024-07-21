@@ -10,24 +10,23 @@ type PushIdT struct {
 	U32 uint32 `json:"u32"`
 	Timestamp int64 `json:"timestamp"`
 	Place uint16 `json:"place"`
-	Root string `json:"root"`
+	NodeId *NodeIdT `json:"node_id"`
 	Device uint32 `json:"device"`
+	Kind byte `json:"kind"`
 }
 
 func (t *PushIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil {
 		return 0
 	}
-	rootOffset := flatbuffers.UOffsetT(0)
-	if t.Root != "" {
-		rootOffset = builder.CreateString(t.Root)
-	}
+	nodeIdOffset := t.NodeId.Pack(builder)
 	PushIdStart(builder)
 	PushIdAddU32(builder, t.U32)
 	PushIdAddTimestamp(builder, t.Timestamp)
 	PushIdAddPlace(builder, t.Place)
-	PushIdAddRoot(builder, rootOffset)
+	PushIdAddNodeId(builder, nodeIdOffset)
 	PushIdAddDevice(builder, t.Device)
+	PushIdAddKind(builder, t.Kind)
 	return PushIdEnd(builder)
 }
 
@@ -35,8 +34,9 @@ func (rcv *PushId) UnPackTo(t *PushIdT) {
 	t.U32 = rcv.U32()
 	t.Timestamp = rcv.Timestamp()
 	t.Place = rcv.Place()
-	t.Root = string(rcv.Root())
+	t.NodeId = rcv.NodeId(nil).UnPack()
 	t.Device = rcv.Device()
+	t.Kind = rcv.Kind()
 }
 
 func (rcv *PushId) UnPack() *PushIdT {
@@ -119,10 +119,15 @@ func (rcv *PushId) MutatePlace(n uint16) bool {
 	return rcv._tab.MutateUint16Slot(8, n)
 }
 
-func (rcv *PushId) Root() []byte {
+func (rcv *PushId) NodeId(obj *NodeId) *NodeId {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(NodeId)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
 	}
 	return nil
 }
@@ -139,8 +144,20 @@ func (rcv *PushId) MutateDevice(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(12, n)
 }
 
+func (rcv *PushId) Kind() byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
+	if o != 0 {
+		return rcv._tab.GetByte(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *PushId) MutateKind(n byte) bool {
+	return rcv._tab.MutateByteSlot(14, n)
+}
+
 func PushIdStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
+	builder.StartObject(6)
 }
 func PushIdAddU32(builder *flatbuffers.Builder, u32 uint32) {
 	builder.PrependUint32Slot(0, u32, 0)
@@ -151,11 +168,14 @@ func PushIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 func PushIdAddPlace(builder *flatbuffers.Builder, place uint16) {
 	builder.PrependUint16Slot(2, place, 0)
 }
-func PushIdAddRoot(builder *flatbuffers.Builder, root flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(root), 0)
+func PushIdAddNodeId(builder *flatbuffers.Builder, nodeId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(nodeId), 0)
 }
 func PushIdAddDevice(builder *flatbuffers.Builder, device uint32) {
 	builder.PrependUint32Slot(4, device, 0)
+}
+func PushIdAddKind(builder *flatbuffers.Builder, kind byte) {
+	builder.PrependByteSlot(5, kind, 0)
 }
 func PushIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
