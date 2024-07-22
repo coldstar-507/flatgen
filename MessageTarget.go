@@ -7,40 +7,27 @@ import (
 )
 
 type MessageTargetT struct {
-	UserId string `json:"user_id"`
-	DeviceId uint32 `json:"device_id"`
 	Token string `json:"token"`
 	ShowNotif bool `json:"show_notif"`
-	DoPush bool `json:"do_push"`
 }
 
 func (t *MessageTargetT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil {
 		return 0
 	}
-	userIdOffset := flatbuffers.UOffsetT(0)
-	if t.UserId != "" {
-		userIdOffset = builder.CreateString(t.UserId)
-	}
 	tokenOffset := flatbuffers.UOffsetT(0)
 	if t.Token != "" {
 		tokenOffset = builder.CreateString(t.Token)
 	}
 	MessageTargetStart(builder)
-	MessageTargetAddUserId(builder, userIdOffset)
-	MessageTargetAddDeviceId(builder, t.DeviceId)
 	MessageTargetAddToken(builder, tokenOffset)
 	MessageTargetAddShowNotif(builder, t.ShowNotif)
-	MessageTargetAddDoPush(builder, t.DoPush)
 	return MessageTargetEnd(builder)
 }
 
 func (rcv *MessageTarget) UnPackTo(t *MessageTargetT) {
-	t.UserId = string(rcv.UserId())
-	t.DeviceId = rcv.DeviceId()
 	t.Token = string(rcv.Token())
 	t.ShowNotif = rcv.ShowNotif()
-	t.DoPush = rcv.DoPush()
 }
 
 func (rcv *MessageTarget) UnPack() *MessageTargetT {
@@ -87,7 +74,7 @@ func (rcv *MessageTarget) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MessageTarget) UserId() []byte {
+func (rcv *MessageTarget) Token() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -95,28 +82,8 @@ func (rcv *MessageTarget) UserId() []byte {
 	return nil
 }
 
-func (rcv *MessageTarget) DeviceId() uint32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
-	if o != 0 {
-		return rcv._tab.GetUint32(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *MessageTarget) MutateDeviceId(n uint32) bool {
-	return rcv._tab.MutateUint32Slot(6, n)
-}
-
-func (rcv *MessageTarget) Token() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
 func (rcv *MessageTarget) ShowNotif() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
 	}
@@ -124,38 +91,17 @@ func (rcv *MessageTarget) ShowNotif() bool {
 }
 
 func (rcv *MessageTarget) MutateShowNotif(n bool) bool {
-	return rcv._tab.MutateBoolSlot(10, n)
-}
-
-func (rcv *MessageTarget) DoPush() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetBool(o + rcv._tab.Pos)
-	}
-	return false
-}
-
-func (rcv *MessageTarget) MutateDoPush(n bool) bool {
-	return rcv._tab.MutateBoolSlot(12, n)
+	return rcv._tab.MutateBoolSlot(6, n)
 }
 
 func MessageTargetStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
-}
-func MessageTargetAddUserId(builder *flatbuffers.Builder, userId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(userId), 0)
-}
-func MessageTargetAddDeviceId(builder *flatbuffers.Builder, deviceId uint32) {
-	builder.PrependUint32Slot(1, deviceId, 0)
+	builder.StartObject(2)
 }
 func MessageTargetAddToken(builder *flatbuffers.Builder, token flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(token), 0)
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(token), 0)
 }
 func MessageTargetAddShowNotif(builder *flatbuffers.Builder, showNotif bool) {
-	builder.PrependBoolSlot(3, showNotif, false)
-}
-func MessageTargetAddDoPush(builder *flatbuffers.Builder, doPush bool) {
-	builder.PrependBoolSlot(4, doPush, false)
+	builder.PrependBoolSlot(1, showNotif, false)
 }
 func MessageTargetEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

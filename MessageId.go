@@ -10,7 +10,6 @@ type MessageIdT struct {
 	Timestamp int64 `json:"timestamp"`
 	U32 uint32 `json:"u32"`
 	Root *RootT `json:"root"`
-	Place uint16 `json:"place"`
 	Kind byte `json:"kind"`
 }
 
@@ -23,7 +22,6 @@ func (t *MessageIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	MessageIdAddTimestamp(builder, t.Timestamp)
 	MessageIdAddU32(builder, t.U32)
 	MessageIdAddRoot(builder, rootOffset)
-	MessageIdAddPlace(builder, t.Place)
 	MessageIdAddKind(builder, t.Kind)
 	return MessageIdEnd(builder)
 }
@@ -32,7 +30,6 @@ func (rcv *MessageId) UnPackTo(t *MessageIdT) {
 	t.Timestamp = rcv.Timestamp()
 	t.U32 = rcv.U32()
 	t.Root = rcv.Root(nil).UnPack()
-	t.Place = rcv.Place()
 	t.Kind = rcv.Kind()
 }
 
@@ -117,20 +114,8 @@ func (rcv *MessageId) Root(obj *Root) *Root {
 	return nil
 }
 
-func (rcv *MessageId) Place() uint16 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
-	if o != 0 {
-		return rcv._tab.GetUint16(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *MessageId) MutatePlace(n uint16) bool {
-	return rcv._tab.MutateUint16Slot(10, n)
-}
-
 func (rcv *MessageId) Kind() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
 	}
@@ -138,11 +123,11 @@ func (rcv *MessageId) Kind() byte {
 }
 
 func (rcv *MessageId) MutateKind(n byte) bool {
-	return rcv._tab.MutateByteSlot(12, n)
+	return rcv._tab.MutateByteSlot(10, n)
 }
 
 func MessageIdStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
+	builder.StartObject(4)
 }
 func MessageIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 	builder.PrependInt64Slot(0, timestamp, 0)
@@ -153,11 +138,8 @@ func MessageIdAddU32(builder *flatbuffers.Builder, u32 uint32) {
 func MessageIdAddRoot(builder *flatbuffers.Builder, root flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(root), 0)
 }
-func MessageIdAddPlace(builder *flatbuffers.Builder, place uint16) {
-	builder.PrependUint16Slot(3, place, 0)
-}
 func MessageIdAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(4, kind, 0)
+	builder.PrependByteSlot(3, kind, 0)
 }
 func MessageIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
