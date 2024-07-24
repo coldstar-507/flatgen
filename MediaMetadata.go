@@ -7,7 +7,8 @@ import (
 )
 
 type MediaMetadataT struct {
-	TimeId string `json:"time_id"`
+	MediaId *MediaIdT `json:"media_id"`
+	TempId *TempIdT `json:"temp_id"`
 	OwnerId string `json:"owner_id"`
 	Timestamp int64 `json:"timestamp"`
 	Mime string `json:"mime"`
@@ -17,17 +18,14 @@ type MediaMetadataT struct {
 	IsPaidToOwn bool `json:"is_paid_to_own"`
 	IsLocked bool `json:"is_locked"`
 	IsSaved bool `json:"is_saved"`
-	Temp string `json:"temp"`
 }
 
 func (t *MediaMetadataT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil {
 		return 0
 	}
-	timeIdOffset := flatbuffers.UOffsetT(0)
-	if t.TimeId != "" {
-		timeIdOffset = builder.CreateString(t.TimeId)
-	}
+	mediaIdOffset := t.MediaId.Pack(builder)
+	tempIdOffset := t.TempId.Pack(builder)
 	ownerIdOffset := flatbuffers.UOffsetT(0)
 	if t.OwnerId != "" {
 		ownerIdOffset = builder.CreateString(t.OwnerId)
@@ -36,12 +34,9 @@ func (t *MediaMetadataT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	if t.Mime != "" {
 		mimeOffset = builder.CreateString(t.Mime)
 	}
-	tempOffset := flatbuffers.UOffsetT(0)
-	if t.Temp != "" {
-		tempOffset = builder.CreateString(t.Temp)
-	}
 	MediaMetadataStart(builder)
-	MediaMetadataAddTimeId(builder, timeIdOffset)
+	MediaMetadataAddMediaId(builder, mediaIdOffset)
+	MediaMetadataAddTempId(builder, tempIdOffset)
 	MediaMetadataAddOwnerId(builder, ownerIdOffset)
 	MediaMetadataAddTimestamp(builder, t.Timestamp)
 	MediaMetadataAddMime(builder, mimeOffset)
@@ -51,12 +46,12 @@ func (t *MediaMetadataT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	MediaMetadataAddIsPaidToOwn(builder, t.IsPaidToOwn)
 	MediaMetadataAddIsLocked(builder, t.IsLocked)
 	MediaMetadataAddIsSaved(builder, t.IsSaved)
-	MediaMetadataAddTemp(builder, tempOffset)
 	return MediaMetadataEnd(builder)
 }
 
 func (rcv *MediaMetadata) UnPackTo(t *MediaMetadataT) {
-	t.TimeId = string(rcv.TimeId())
+	t.MediaId = rcv.MediaId(nil).UnPack()
+	t.TempId = rcv.TempId(nil).UnPack()
 	t.OwnerId = string(rcv.OwnerId())
 	t.Timestamp = rcv.Timestamp()
 	t.Mime = string(rcv.Mime())
@@ -66,7 +61,6 @@ func (rcv *MediaMetadata) UnPackTo(t *MediaMetadataT) {
 	t.IsPaidToOwn = rcv.IsPaidToOwn()
 	t.IsLocked = rcv.IsLocked()
 	t.IsSaved = rcv.IsSaved()
-	t.Temp = string(rcv.Temp())
 }
 
 func (rcv *MediaMetadata) UnPack() *MediaMetadataT {
@@ -113,16 +107,34 @@ func (rcv *MediaMetadata) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MediaMetadata) TimeId() []byte {
+func (rcv *MediaMetadata) MediaId(obj *MediaId) *MediaId {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(MediaId)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
+func (rcv *MediaMetadata) TempId(obj *TempId) *TempId {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(TempId)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
 	}
 	return nil
 }
 
 func (rcv *MediaMetadata) OwnerId() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -130,7 +142,7 @@ func (rcv *MediaMetadata) OwnerId() []byte {
 }
 
 func (rcv *MediaMetadata) Timestamp() int64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
@@ -138,11 +150,11 @@ func (rcv *MediaMetadata) Timestamp() int64 {
 }
 
 func (rcv *MediaMetadata) MutateTimestamp(n int64) bool {
-	return rcv._tab.MutateInt64Slot(8, n)
+	return rcv._tab.MutateInt64Slot(10, n)
 }
 
 func (rcv *MediaMetadata) Mime() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -150,18 +162,6 @@ func (rcv *MediaMetadata) Mime() []byte {
 }
 
 func (rcv *MediaMetadata) IsReversed() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetBool(o + rcv._tab.Pos)
-	}
-	return false
-}
-
-func (rcv *MediaMetadata) MutateIsReversed(n bool) bool {
-	return rcv._tab.MutateBoolSlot(12, n)
-}
-
-func (rcv *MediaMetadata) IsEncrypted() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
@@ -169,11 +169,11 @@ func (rcv *MediaMetadata) IsEncrypted() bool {
 	return false
 }
 
-func (rcv *MediaMetadata) MutateIsEncrypted(n bool) bool {
+func (rcv *MediaMetadata) MutateIsReversed(n bool) bool {
 	return rcv._tab.MutateBoolSlot(14, n)
 }
 
-func (rcv *MediaMetadata) IsPaidToView() bool {
+func (rcv *MediaMetadata) IsEncrypted() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
@@ -181,11 +181,11 @@ func (rcv *MediaMetadata) IsPaidToView() bool {
 	return false
 }
 
-func (rcv *MediaMetadata) MutateIsPaidToView(n bool) bool {
+func (rcv *MediaMetadata) MutateIsEncrypted(n bool) bool {
 	return rcv._tab.MutateBoolSlot(16, n)
 }
 
-func (rcv *MediaMetadata) IsPaidToOwn() bool {
+func (rcv *MediaMetadata) IsPaidToView() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
@@ -193,11 +193,11 @@ func (rcv *MediaMetadata) IsPaidToOwn() bool {
 	return false
 }
 
-func (rcv *MediaMetadata) MutateIsPaidToOwn(n bool) bool {
+func (rcv *MediaMetadata) MutateIsPaidToView(n bool) bool {
 	return rcv._tab.MutateBoolSlot(18, n)
 }
 
-func (rcv *MediaMetadata) IsLocked() bool {
+func (rcv *MediaMetadata) IsPaidToOwn() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
@@ -205,11 +205,11 @@ func (rcv *MediaMetadata) IsLocked() bool {
 	return false
 }
 
-func (rcv *MediaMetadata) MutateIsLocked(n bool) bool {
+func (rcv *MediaMetadata) MutateIsPaidToOwn(n bool) bool {
 	return rcv._tab.MutateBoolSlot(20, n)
 }
 
-func (rcv *MediaMetadata) IsSaved() bool {
+func (rcv *MediaMetadata) IsLocked() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
@@ -217,53 +217,57 @@ func (rcv *MediaMetadata) IsSaved() bool {
 	return false
 }
 
-func (rcv *MediaMetadata) MutateIsSaved(n bool) bool {
+func (rcv *MediaMetadata) MutateIsLocked(n bool) bool {
 	return rcv._tab.MutateBoolSlot(22, n)
 }
 
-func (rcv *MediaMetadata) Temp() []byte {
+func (rcv *MediaMetadata) IsSaved() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
 	}
-	return nil
+	return false
+}
+
+func (rcv *MediaMetadata) MutateIsSaved(n bool) bool {
+	return rcv._tab.MutateBoolSlot(24, n)
 }
 
 func MediaMetadataStart(builder *flatbuffers.Builder) {
 	builder.StartObject(11)
 }
-func MediaMetadataAddTimeId(builder *flatbuffers.Builder, timeId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(timeId), 0)
+func MediaMetadataAddMediaId(builder *flatbuffers.Builder, mediaId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(mediaId), 0)
+}
+func MediaMetadataAddTempId(builder *flatbuffers.Builder, tempId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(tempId), 0)
 }
 func MediaMetadataAddOwnerId(builder *flatbuffers.Builder, ownerId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(ownerId), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(ownerId), 0)
 }
 func MediaMetadataAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
-	builder.PrependInt64Slot(2, timestamp, 0)
+	builder.PrependInt64Slot(3, timestamp, 0)
 }
 func MediaMetadataAddMime(builder *flatbuffers.Builder, mime flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(mime), 0)
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(mime), 0)
 }
 func MediaMetadataAddIsReversed(builder *flatbuffers.Builder, isReversed bool) {
-	builder.PrependBoolSlot(4, isReversed, false)
+	builder.PrependBoolSlot(5, isReversed, false)
 }
 func MediaMetadataAddIsEncrypted(builder *flatbuffers.Builder, isEncrypted bool) {
-	builder.PrependBoolSlot(5, isEncrypted, false)
+	builder.PrependBoolSlot(6, isEncrypted, false)
 }
 func MediaMetadataAddIsPaidToView(builder *flatbuffers.Builder, isPaidToView bool) {
-	builder.PrependBoolSlot(6, isPaidToView, false)
+	builder.PrependBoolSlot(7, isPaidToView, false)
 }
 func MediaMetadataAddIsPaidToOwn(builder *flatbuffers.Builder, isPaidToOwn bool) {
-	builder.PrependBoolSlot(7, isPaidToOwn, false)
+	builder.PrependBoolSlot(8, isPaidToOwn, false)
 }
 func MediaMetadataAddIsLocked(builder *flatbuffers.Builder, isLocked bool) {
-	builder.PrependBoolSlot(8, isLocked, false)
+	builder.PrependBoolSlot(9, isLocked, false)
 }
 func MediaMetadataAddIsSaved(builder *flatbuffers.Builder, isSaved bool) {
-	builder.PrependBoolSlot(9, isSaved, false)
-}
-func MediaMetadataAddTemp(builder *flatbuffers.Builder, temp flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(10, flatbuffers.UOffsetT(temp), 0)
+	builder.PrependBoolSlot(10, isSaved, false)
 }
 func MediaMetadataEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
