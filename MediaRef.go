@@ -11,7 +11,7 @@ type MediaRefT struct {
 	Place uint16 `json:"place"`
 	MediaId *MediaIdT `json:"media_id"`
 	Permanent bool `json:"permanent"`
-	Kind byte `json:"kind"`
+	Prefix byte `json:"prefix"`
 }
 
 func (t *MediaRefT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -24,7 +24,7 @@ func (t *MediaRefT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	MediaRefAddPlace(builder, t.Place)
 	MediaRefAddMediaId(builder, mediaIdOffset)
 	MediaRefAddPermanent(builder, t.Permanent)
-	MediaRefAddKind(builder, t.Kind)
+	MediaRefAddPrefix(builder, t.Prefix)
 	return MediaRefEnd(builder)
 }
 
@@ -33,7 +33,7 @@ func (rcv *MediaRef) UnPackTo(t *MediaRefT) {
 	t.Place = rcv.Place()
 	t.MediaId = rcv.MediaId(nil).UnPack()
 	t.Permanent = rcv.Permanent()
-	t.Kind = rcv.Kind()
+	t.Prefix = rcv.Prefix()
 }
 
 func (rcv *MediaRef) UnPack() *MediaRefT {
@@ -129,7 +129,7 @@ func (rcv *MediaRef) MutatePermanent(n bool) bool {
 	return rcv._tab.MutateBoolSlot(10, n)
 }
 
-func (rcv *MediaRef) Kind() byte {
+func (rcv *MediaRef) Prefix() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
@@ -137,7 +137,7 @@ func (rcv *MediaRef) Kind() byte {
 	return 0
 }
 
-func (rcv *MediaRef) MutateKind(n byte) bool {
+func (rcv *MediaRef) MutatePrefix(n byte) bool {
 	return rcv._tab.MutateByteSlot(12, n)
 }
 
@@ -156,8 +156,8 @@ func MediaRefAddMediaId(builder *flatbuffers.Builder, mediaId flatbuffers.UOffse
 func MediaRefAddPermanent(builder *flatbuffers.Builder, permanent bool) {
 	builder.PrependBoolSlot(3, permanent, false)
 }
-func MediaRefAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(4, kind, 0)
+func MediaRefAddPrefix(builder *flatbuffers.Builder, prefix byte) {
+	builder.PrependByteSlot(4, prefix, 0)
 }
 func MediaRefEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

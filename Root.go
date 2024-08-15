@@ -11,7 +11,7 @@ type RootT struct {
 	Secondary *NodeIdT `json:"secondary"`
 	Timestamp int64 `json:"timestamp"`
 	ChatPlace uint16 `json:"chat_place"`
-	Kind byte `json:"kind"`
+	Prefix byte `json:"prefix"`
 }
 
 func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -25,7 +25,7 @@ func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	RootAddSecondary(builder, secondaryOffset)
 	RootAddTimestamp(builder, t.Timestamp)
 	RootAddChatPlace(builder, t.ChatPlace)
-	RootAddKind(builder, t.Kind)
+	RootAddPrefix(builder, t.Prefix)
 	return RootEnd(builder)
 }
 
@@ -34,7 +34,7 @@ func (rcv *Root) UnPackTo(t *RootT) {
 	t.Secondary = rcv.Secondary(nil).UnPack()
 	t.Timestamp = rcv.Timestamp()
 	t.ChatPlace = rcv.ChatPlace()
-	t.Kind = rcv.Kind()
+	t.Prefix = rcv.Prefix()
 }
 
 func (rcv *Root) UnPack() *RootT {
@@ -131,7 +131,7 @@ func (rcv *Root) MutateChatPlace(n uint16) bool {
 	return rcv._tab.MutateUint16Slot(10, n)
 }
 
-func (rcv *Root) Kind() byte {
+func (rcv *Root) Prefix() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
@@ -139,7 +139,7 @@ func (rcv *Root) Kind() byte {
 	return 0
 }
 
-func (rcv *Root) MutateKind(n byte) bool {
+func (rcv *Root) MutatePrefix(n byte) bool {
 	return rcv._tab.MutateByteSlot(12, n)
 }
 
@@ -158,8 +158,8 @@ func RootAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 func RootAddChatPlace(builder *flatbuffers.Builder, chatPlace uint16) {
 	builder.PrependUint16Slot(3, chatPlace, 0)
 }
-func RootAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(4, kind, 0)
+func RootAddPrefix(builder *flatbuffers.Builder, prefix byte) {
+	builder.PrependByteSlot(4, prefix, 0)
 }
 func RootEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

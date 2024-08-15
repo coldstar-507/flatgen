@@ -11,7 +11,7 @@ type PushIdT struct {
 	Timestamp int64 `json:"timestamp"`
 	NodeId *NodeIdT `json:"node_id"`
 	Device uint32 `json:"device"`
-	Kind byte `json:"kind"`
+	Prefix byte `json:"prefix"`
 }
 
 func (t *PushIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -24,7 +24,7 @@ func (t *PushIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	PushIdAddTimestamp(builder, t.Timestamp)
 	PushIdAddNodeId(builder, nodeIdOffset)
 	PushIdAddDevice(builder, t.Device)
-	PushIdAddKind(builder, t.Kind)
+	PushIdAddPrefix(builder, t.Prefix)
 	return PushIdEnd(builder)
 }
 
@@ -33,7 +33,7 @@ func (rcv *PushId) UnPackTo(t *PushIdT) {
 	t.Timestamp = rcv.Timestamp()
 	t.NodeId = rcv.NodeId(nil).UnPack()
 	t.Device = rcv.Device()
-	t.Kind = rcv.Kind()
+	t.Prefix = rcv.Prefix()
 }
 
 func (rcv *PushId) UnPack() *PushIdT {
@@ -129,7 +129,7 @@ func (rcv *PushId) MutateDevice(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(10, n)
 }
 
-func (rcv *PushId) Kind() byte {
+func (rcv *PushId) Prefix() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
@@ -137,7 +137,7 @@ func (rcv *PushId) Kind() byte {
 	return 0
 }
 
-func (rcv *PushId) MutateKind(n byte) bool {
+func (rcv *PushId) MutatePrefix(n byte) bool {
 	return rcv._tab.MutateByteSlot(12, n)
 }
 
@@ -156,8 +156,8 @@ func PushIdAddNodeId(builder *flatbuffers.Builder, nodeId flatbuffers.UOffsetT) 
 func PushIdAddDevice(builder *flatbuffers.Builder, device uint32) {
 	builder.PrependUint32Slot(3, device, 0)
 }
-func PushIdAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(4, kind, 0)
+func PushIdAddPrefix(builder *flatbuffers.Builder, prefix byte) {
+	builder.PrependByteSlot(4, prefix, 0)
 }
 func PushIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

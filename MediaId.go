@@ -13,7 +13,7 @@ type MediaIdT struct {
 	Height uint16 `json:"height"`
 	Squared bool `json:"squared"`
 	Video bool `json:"video"`
-	Kind byte `json:"kind"`
+	Prefix byte `json:"prefix"`
 }
 
 func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -27,7 +27,7 @@ func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	MediaIdAddHeight(builder, t.Height)
 	MediaIdAddSquared(builder, t.Squared)
 	MediaIdAddVideo(builder, t.Video)
-	MediaIdAddKind(builder, t.Kind)
+	MediaIdAddPrefix(builder, t.Prefix)
 	return MediaIdEnd(builder)
 }
 
@@ -38,7 +38,7 @@ func (rcv *MediaId) UnPackTo(t *MediaIdT) {
 	t.Height = rcv.Height()
 	t.Squared = rcv.Squared()
 	t.Video = rcv.Video()
-	t.Kind = rcv.Kind()
+	t.Prefix = rcv.Prefix()
 }
 
 func (rcv *MediaId) UnPack() *MediaIdT {
@@ -157,7 +157,7 @@ func (rcv *MediaId) MutateVideo(n bool) bool {
 	return rcv._tab.MutateBoolSlot(14, n)
 }
 
-func (rcv *MediaId) Kind() byte {
+func (rcv *MediaId) Prefix() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
@@ -165,7 +165,7 @@ func (rcv *MediaId) Kind() byte {
 	return 0
 }
 
-func (rcv *MediaId) MutateKind(n byte) bool {
+func (rcv *MediaId) MutatePrefix(n byte) bool {
 	return rcv._tab.MutateByteSlot(16, n)
 }
 
@@ -190,8 +190,8 @@ func MediaIdAddSquared(builder *flatbuffers.Builder, squared bool) {
 func MediaIdAddVideo(builder *flatbuffers.Builder, video bool) {
 	builder.PrependBoolSlot(5, video, false)
 }
-func MediaIdAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(6, kind, 0)
+func MediaIdAddPrefix(builder *flatbuffers.Builder, prefix byte) {
+	builder.PrependByteSlot(6, prefix, 0)
 }
 func MediaIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

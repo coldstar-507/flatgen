@@ -9,7 +9,7 @@ import (
 type NodeIdT struct {
 	Timestamp int64 `json:"timestamp"`
 	U32 uint32 `json:"u32"`
-	Kind byte `json:"kind"`
+	Prefix byte `json:"prefix"`
 }
 
 func (t *NodeIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -19,14 +19,14 @@ func (t *NodeIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	NodeIdStart(builder)
 	NodeIdAddTimestamp(builder, t.Timestamp)
 	NodeIdAddU32(builder, t.U32)
-	NodeIdAddKind(builder, t.Kind)
+	NodeIdAddPrefix(builder, t.Prefix)
 	return NodeIdEnd(builder)
 }
 
 func (rcv *NodeId) UnPackTo(t *NodeIdT) {
 	t.Timestamp = rcv.Timestamp()
 	t.U32 = rcv.U32()
-	t.Kind = rcv.Kind()
+	t.Prefix = rcv.Prefix()
 }
 
 func (rcv *NodeId) UnPack() *NodeIdT {
@@ -97,7 +97,7 @@ func (rcv *NodeId) MutateU32(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(6, n)
 }
 
-func (rcv *NodeId) Kind() byte {
+func (rcv *NodeId) Prefix() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
@@ -105,7 +105,7 @@ func (rcv *NodeId) Kind() byte {
 	return 0
 }
 
-func (rcv *NodeId) MutateKind(n byte) bool {
+func (rcv *NodeId) MutatePrefix(n byte) bool {
 	return rcv._tab.MutateByteSlot(8, n)
 }
 
@@ -118,8 +118,8 @@ func NodeIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 func NodeIdAddU32(builder *flatbuffers.Builder, u32 uint32) {
 	builder.PrependUint32Slot(1, u32, 0)
 }
-func NodeIdAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(2, kind, 0)
+func NodeIdAddPrefix(builder *flatbuffers.Builder, prefix byte) {
+	builder.PrependByteSlot(2, prefix, 0)
 }
 func NodeIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

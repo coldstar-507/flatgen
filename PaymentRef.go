@@ -9,7 +9,7 @@ import (
 type PaymentRefT struct {
 	Timestamp int64 `json:"timestamp"`
 	PaymentIdRaw []byte `json:"payment_id_raw"`
-	Kind byte `json:"kind"`
+	Prefix byte `json:"prefix"`
 }
 
 func (t *PaymentRefT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -23,14 +23,14 @@ func (t *PaymentRefT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	PaymentRefStart(builder)
 	PaymentRefAddTimestamp(builder, t.Timestamp)
 	PaymentRefAddPaymentIdRaw(builder, paymentIdRawOffset)
-	PaymentRefAddKind(builder, t.Kind)
+	PaymentRefAddPrefix(builder, t.Prefix)
 	return PaymentRefEnd(builder)
 }
 
 func (rcv *PaymentRef) UnPackTo(t *PaymentRefT) {
 	t.Timestamp = rcv.Timestamp()
 	t.PaymentIdRaw = rcv.PaymentIdRawBytes()
-	t.Kind = rcv.Kind()
+	t.Prefix = rcv.Prefix()
 }
 
 func (rcv *PaymentRef) UnPack() *PaymentRefT {
@@ -123,7 +123,7 @@ func (rcv *PaymentRef) MutatePaymentIdRaw(j int, n byte) bool {
 	return false
 }
 
-func (rcv *PaymentRef) Kind() byte {
+func (rcv *PaymentRef) Prefix() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetByte(o + rcv._tab.Pos)
@@ -131,7 +131,7 @@ func (rcv *PaymentRef) Kind() byte {
 	return 0
 }
 
-func (rcv *PaymentRef) MutateKind(n byte) bool {
+func (rcv *PaymentRef) MutatePrefix(n byte) bool {
 	return rcv._tab.MutateByteSlot(8, n)
 }
 
@@ -147,8 +147,8 @@ func PaymentRefAddPaymentIdRaw(builder *flatbuffers.Builder, paymentIdRaw flatbu
 func PaymentRefStartPaymentIdRawVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func PaymentRefAddKind(builder *flatbuffers.Builder, kind byte) {
-	builder.PrependByteSlot(2, kind, 0)
+func PaymentRefAddPrefix(builder *flatbuffers.Builder, prefix byte) {
+	builder.PrependByteSlot(2, prefix, 0)
 }
 func PaymentRefEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
