@@ -7,11 +7,11 @@ import (
 )
 
 type RootT struct {
+	Prefix byte `json:"prefix"`
 	Primary *NodeIdT `json:"primary"`
 	Secondary *NodeIdT `json:"secondary"`
 	Timestamp int64 `json:"timestamp"`
 	ChatPlace uint16 `json:"chat_place"`
-	Prefix byte `json:"prefix"`
 }
 
 func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -21,20 +21,20 @@ func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	primaryOffset := t.Primary.Pack(builder)
 	secondaryOffset := t.Secondary.Pack(builder)
 	RootStart(builder)
+	RootAddPrefix(builder, t.Prefix)
 	RootAddPrimary(builder, primaryOffset)
 	RootAddSecondary(builder, secondaryOffset)
 	RootAddTimestamp(builder, t.Timestamp)
 	RootAddChatPlace(builder, t.ChatPlace)
-	RootAddPrefix(builder, t.Prefix)
 	return RootEnd(builder)
 }
 
 func (rcv *Root) UnPackTo(t *RootT) {
+	t.Prefix = rcv.Prefix()
 	t.Primary = rcv.Primary(nil).UnPack()
 	t.Secondary = rcv.Secondary(nil).UnPack()
 	t.Timestamp = rcv.Timestamp()
 	t.ChatPlace = rcv.ChatPlace()
-	t.Prefix = rcv.Prefix()
 }
 
 func (rcv *Root) UnPack() *RootT {
@@ -81,20 +81,19 @@ func (rcv *Root) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Root) Primary(obj *NodeId) *NodeId {
+func (rcv *Root) Prefix() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		x := rcv._tab.Indirect(o + rcv._tab.Pos)
-		if obj == nil {
-			obj = new(NodeId)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
+		return rcv._tab.GetByte(o + rcv._tab.Pos)
 	}
-	return nil
+	return 0
 }
 
-func (rcv *Root) Secondary(obj *NodeId) *NodeId {
+func (rcv *Root) MutatePrefix(n byte) bool {
+	return rcv._tab.MutateByteSlot(4, n)
+}
+
+func (rcv *Root) Primary(obj *NodeId) *NodeId {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
@@ -107,8 +106,21 @@ func (rcv *Root) Secondary(obj *NodeId) *NodeId {
 	return nil
 }
 
-func (rcv *Root) Timestamp() int64 {
+func (rcv *Root) Secondary(obj *NodeId) *NodeId {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(NodeId)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
+func (rcv *Root) Timestamp() int64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
@@ -116,11 +128,11 @@ func (rcv *Root) Timestamp() int64 {
 }
 
 func (rcv *Root) MutateTimestamp(n int64) bool {
-	return rcv._tab.MutateInt64Slot(8, n)
+	return rcv._tab.MutateInt64Slot(10, n)
 }
 
 func (rcv *Root) ChatPlace() uint16 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
@@ -128,38 +140,26 @@ func (rcv *Root) ChatPlace() uint16 {
 }
 
 func (rcv *Root) MutateChatPlace(n uint16) bool {
-	return rcv._tab.MutateUint16Slot(10, n)
-}
-
-func (rcv *Root) Prefix() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Root) MutatePrefix(n byte) bool {
-	return rcv._tab.MutateByteSlot(12, n)
+	return rcv._tab.MutateUint16Slot(12, n)
 }
 
 func RootStart(builder *flatbuffers.Builder) {
 	builder.StartObject(5)
 }
+func RootAddPrefix(builder *flatbuffers.Builder, prefix byte) {
+	builder.PrependByteSlot(0, prefix, 0)
+}
 func RootAddPrimary(builder *flatbuffers.Builder, primary flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(primary), 0)
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(primary), 0)
 }
 func RootAddSecondary(builder *flatbuffers.Builder, secondary flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(secondary), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(secondary), 0)
 }
 func RootAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
-	builder.PrependInt64Slot(2, timestamp, 0)
+	builder.PrependInt64Slot(3, timestamp, 0)
 }
 func RootAddChatPlace(builder *flatbuffers.Builder, chatPlace uint16) {
-	builder.PrependUint16Slot(3, chatPlace, 0)
-}
-func RootAddPrefix(builder *flatbuffers.Builder, prefix byte) {
-	builder.PrependByteSlot(4, prefix, 0)
+	builder.PrependUint16Slot(4, chatPlace, 0)
 }
 func RootEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
