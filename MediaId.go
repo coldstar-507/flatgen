@@ -7,13 +7,11 @@ import (
 )
 
 type MediaIdT struct {
+	Prefix int8 `json:"prefix"`
 	Timestamp int64 `json:"timestamp"`
 	U32 uint32 `json:"u32"`
-	Width uint16 `json:"width"`
-	Height uint16 `json:"height"`
-	Squared bool `json:"squared"`
-	Video bool `json:"video"`
-	Prefix byte `json:"prefix"`
+	AspectRatio float32 `json:"aspect_ratio"`
+	MediaType uint16 `json:"media_type"`
 }
 
 func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -21,24 +19,20 @@ func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		return 0
 	}
 	MediaIdStart(builder)
+	MediaIdAddPrefix(builder, t.Prefix)
 	MediaIdAddTimestamp(builder, t.Timestamp)
 	MediaIdAddU32(builder, t.U32)
-	MediaIdAddWidth(builder, t.Width)
-	MediaIdAddHeight(builder, t.Height)
-	MediaIdAddSquared(builder, t.Squared)
-	MediaIdAddVideo(builder, t.Video)
-	MediaIdAddPrefix(builder, t.Prefix)
+	MediaIdAddAspectRatio(builder, t.AspectRatio)
+	MediaIdAddMediaType(builder, t.MediaType)
 	return MediaIdEnd(builder)
 }
 
 func (rcv *MediaId) UnPackTo(t *MediaIdT) {
+	t.Prefix = rcv.Prefix()
 	t.Timestamp = rcv.Timestamp()
 	t.U32 = rcv.U32()
-	t.Width = rcv.Width()
-	t.Height = rcv.Height()
-	t.Squared = rcv.Squared()
-	t.Video = rcv.Video()
-	t.Prefix = rcv.Prefix()
+	t.AspectRatio = rcv.AspectRatio()
+	t.MediaType = rcv.MediaType()
 }
 
 func (rcv *MediaId) UnPack() *MediaIdT {
@@ -85,8 +79,20 @@ func (rcv *MediaId) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MediaId) Timestamp() int64 {
+func (rcv *MediaId) Prefix() int8 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *MediaId) MutatePrefix(n int8) bool {
+	return rcv._tab.MutateInt8Slot(4, n)
+}
+
+func (rcv *MediaId) Timestamp() int64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
@@ -94,11 +100,11 @@ func (rcv *MediaId) Timestamp() int64 {
 }
 
 func (rcv *MediaId) MutateTimestamp(n int64) bool {
-	return rcv._tab.MutateInt64Slot(4, n)
+	return rcv._tab.MutateInt64Slot(6, n)
 }
 
 func (rcv *MediaId) U32() uint32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetUint32(o + rcv._tab.Pos)
 	}
@@ -106,92 +112,50 @@ func (rcv *MediaId) U32() uint32 {
 }
 
 func (rcv *MediaId) MutateU32(n uint32) bool {
-	return rcv._tab.MutateUint32Slot(6, n)
+	return rcv._tab.MutateUint32Slot(8, n)
 }
 
-func (rcv *MediaId) Width() uint16 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		return rcv._tab.GetUint16(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *MediaId) MutateWidth(n uint16) bool {
-	return rcv._tab.MutateUint16Slot(8, n)
-}
-
-func (rcv *MediaId) Height() uint16 {
+func (rcv *MediaId) AspectRatio() float32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
+		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
+	}
+	return 0.0
+}
+
+func (rcv *MediaId) MutateAspectRatio(n float32) bool {
+	return rcv._tab.MutateFloat32Slot(10, n)
+}
+
+func (rcv *MediaId) MediaType() uint16 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
 		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *MediaId) MutateHeight(n uint16) bool {
-	return rcv._tab.MutateUint16Slot(10, n)
-}
-
-func (rcv *MediaId) Squared() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetBool(o + rcv._tab.Pos)
-	}
-	return false
-}
-
-func (rcv *MediaId) MutateSquared(n bool) bool {
-	return rcv._tab.MutateBoolSlot(12, n)
-}
-
-func (rcv *MediaId) Video() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		return rcv._tab.GetBool(o + rcv._tab.Pos)
-	}
-	return false
-}
-
-func (rcv *MediaId) MutateVideo(n bool) bool {
-	return rcv._tab.MutateBoolSlot(14, n)
-}
-
-func (rcv *MediaId) Prefix() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *MediaId) MutatePrefix(n byte) bool {
-	return rcv._tab.MutateByteSlot(16, n)
+func (rcv *MediaId) MutateMediaType(n uint16) bool {
+	return rcv._tab.MutateUint16Slot(12, n)
 }
 
 func MediaIdStart(builder *flatbuffers.Builder) {
-	builder.StartObject(7)
+	builder.StartObject(5)
+}
+func MediaIdAddPrefix(builder *flatbuffers.Builder, prefix int8) {
+	builder.PrependInt8Slot(0, prefix, 0)
 }
 func MediaIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
-	builder.PrependInt64Slot(0, timestamp, 0)
+	builder.PrependInt64Slot(1, timestamp, 0)
 }
 func MediaIdAddU32(builder *flatbuffers.Builder, u32 uint32) {
-	builder.PrependUint32Slot(1, u32, 0)
+	builder.PrependUint32Slot(2, u32, 0)
 }
-func MediaIdAddWidth(builder *flatbuffers.Builder, width uint16) {
-	builder.PrependUint16Slot(2, width, 0)
+func MediaIdAddAspectRatio(builder *flatbuffers.Builder, aspectRatio float32) {
+	builder.PrependFloat32Slot(3, aspectRatio, 0.0)
 }
-func MediaIdAddHeight(builder *flatbuffers.Builder, height uint16) {
-	builder.PrependUint16Slot(3, height, 0)
-}
-func MediaIdAddSquared(builder *flatbuffers.Builder, squared bool) {
-	builder.PrependBoolSlot(4, squared, false)
-}
-func MediaIdAddVideo(builder *flatbuffers.Builder, video bool) {
-	builder.PrependBoolSlot(5, video, false)
-}
-func MediaIdAddPrefix(builder *flatbuffers.Builder, prefix byte) {
-	builder.PrependByteSlot(6, prefix, 0)
+func MediaIdAddMediaType(builder *flatbuffers.Builder, mediaType uint16) {
+	builder.PrependUint16Slot(4, mediaType, 0)
 }
 func MediaIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

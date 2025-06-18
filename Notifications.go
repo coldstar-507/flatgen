@@ -7,66 +7,88 @@ import (
 )
 
 type NotificationsT struct {
-	Sender string `json:"sender"`
+	SenderName string `json:"sender_name"`
+	SenderId string `json:"sender_id"`
 	Root string `json:"root"`
-	Header string `json:"header"`
+	SenderMediaId string `json:"sender_media_id"`
+	GroupMediaId string `json:"group_media_id"`
+	Title string `json:"title"`
 	Body string `json:"body"`
-	Targets []*MessageTargetT `json:"targets"`
+	IsGroup bool `json:"is_group"`
+	Tokens []string `json:"tokens"`
 }
 
 func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil {
 		return 0
 	}
-	senderOffset := flatbuffers.UOffsetT(0)
-	if t.Sender != "" {
-		senderOffset = builder.CreateString(t.Sender)
+	senderNameOffset := flatbuffers.UOffsetT(0)
+	if t.SenderName != "" {
+		senderNameOffset = builder.CreateString(t.SenderName)
+	}
+	senderIdOffset := flatbuffers.UOffsetT(0)
+	if t.SenderId != "" {
+		senderIdOffset = builder.CreateString(t.SenderId)
 	}
 	rootOffset := flatbuffers.UOffsetT(0)
 	if t.Root != "" {
 		rootOffset = builder.CreateString(t.Root)
 	}
-	headerOffset := flatbuffers.UOffsetT(0)
-	if t.Header != "" {
-		headerOffset = builder.CreateString(t.Header)
+	senderMediaIdOffset := flatbuffers.UOffsetT(0)
+	if t.SenderMediaId != "" {
+		senderMediaIdOffset = builder.CreateString(t.SenderMediaId)
+	}
+	groupMediaIdOffset := flatbuffers.UOffsetT(0)
+	if t.GroupMediaId != "" {
+		groupMediaIdOffset = builder.CreateString(t.GroupMediaId)
+	}
+	titleOffset := flatbuffers.UOffsetT(0)
+	if t.Title != "" {
+		titleOffset = builder.CreateString(t.Title)
 	}
 	bodyOffset := flatbuffers.UOffsetT(0)
 	if t.Body != "" {
 		bodyOffset = builder.CreateString(t.Body)
 	}
-	targetsOffset := flatbuffers.UOffsetT(0)
-	if t.Targets != nil {
-		targetsLength := len(t.Targets)
-		targetsOffsets := make([]flatbuffers.UOffsetT, targetsLength)
-		for j := 0; j < targetsLength; j++ {
-			targetsOffsets[j] = t.Targets[j].Pack(builder)
+	tokensOffset := flatbuffers.UOffsetT(0)
+	if t.Tokens != nil {
+		tokensLength := len(t.Tokens)
+		tokensOffsets := make([]flatbuffers.UOffsetT, tokensLength)
+		for j := 0; j < tokensLength; j++ {
+			tokensOffsets[j] = builder.CreateString(t.Tokens[j])
 		}
-		NotificationsStartTargetsVector(builder, targetsLength)
-		for j := targetsLength - 1; j >= 0; j-- {
-			builder.PrependUOffsetT(targetsOffsets[j])
+		NotificationsStartTokensVector(builder, tokensLength)
+		for j := tokensLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(tokensOffsets[j])
 		}
-		targetsOffset = builder.EndVector(targetsLength)
+		tokensOffset = builder.EndVector(tokensLength)
 	}
 	NotificationsStart(builder)
-	NotificationsAddSender(builder, senderOffset)
+	NotificationsAddSenderName(builder, senderNameOffset)
+	NotificationsAddSenderId(builder, senderIdOffset)
 	NotificationsAddRoot(builder, rootOffset)
-	NotificationsAddHeader(builder, headerOffset)
+	NotificationsAddSenderMediaId(builder, senderMediaIdOffset)
+	NotificationsAddGroupMediaId(builder, groupMediaIdOffset)
+	NotificationsAddTitle(builder, titleOffset)
 	NotificationsAddBody(builder, bodyOffset)
-	NotificationsAddTargets(builder, targetsOffset)
+	NotificationsAddIsGroup(builder, t.IsGroup)
+	NotificationsAddTokens(builder, tokensOffset)
 	return NotificationsEnd(builder)
 }
 
 func (rcv *Notifications) UnPackTo(t *NotificationsT) {
-	t.Sender = string(rcv.Sender())
+	t.SenderName = string(rcv.SenderName())
+	t.SenderId = string(rcv.SenderId())
 	t.Root = string(rcv.Root())
-	t.Header = string(rcv.Header())
+	t.SenderMediaId = string(rcv.SenderMediaId())
+	t.GroupMediaId = string(rcv.GroupMediaId())
+	t.Title = string(rcv.Title())
 	t.Body = string(rcv.Body())
-	targetsLength := rcv.TargetsLength()
-	t.Targets = make([]*MessageTargetT, targetsLength)
-	for j := 0; j < targetsLength; j++ {
-		x := MessageTarget{}
-		rcv.Targets(&x, j)
-		t.Targets[j] = x.UnPack()
+	t.IsGroup = rcv.IsGroup()
+	tokensLength := rcv.TokensLength()
+	t.Tokens = make([]string, tokensLength)
+	for j := 0; j < tokensLength; j++ {
+		t.Tokens[j] = string(rcv.Tokens(j))
 	}
 }
 
@@ -114,7 +136,7 @@ func (rcv *Notifications) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Notifications) Sender() []byte {
+func (rcv *Notifications) SenderName() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -122,7 +144,7 @@ func (rcv *Notifications) Sender() []byte {
 	return nil
 }
 
-func (rcv *Notifications) Root() []byte {
+func (rcv *Notifications) SenderId() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -130,7 +152,7 @@ func (rcv *Notifications) Root() []byte {
 	return nil
 }
 
-func (rcv *Notifications) Header() []byte {
+func (rcv *Notifications) Root() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -138,7 +160,7 @@ func (rcv *Notifications) Header() []byte {
 	return nil
 }
 
-func (rcv *Notifications) Body() []byte {
+func (rcv *Notifications) SenderMediaId() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -146,20 +168,53 @@ func (rcv *Notifications) Body() []byte {
 	return nil
 }
 
-func (rcv *Notifications) Targets(obj *MessageTarget, j int) bool {
+func (rcv *Notifications) GroupMediaId() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
-		x := rcv._tab.Vector(o)
-		x += flatbuffers.UOffsetT(j) * 4
-		x = rcv._tab.Indirect(x)
-		obj.Init(rcv._tab.Bytes, x)
-		return true
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Notifications) Title() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Notifications) Body() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Notifications) IsGroup() bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
 	}
 	return false
 }
 
-func (rcv *Notifications) TargetsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+func (rcv *Notifications) MutateIsGroup(n bool) bool {
+	return rcv._tab.MutateBoolSlot(18, n)
+}
+
+func (rcv *Notifications) Tokens(j int) []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
+	}
+	return nil
+}
+
+func (rcv *Notifications) TokensLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -167,24 +222,36 @@ func (rcv *Notifications) TargetsLength() int {
 }
 
 func NotificationsStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
+	builder.StartObject(9)
 }
-func NotificationsAddSender(builder *flatbuffers.Builder, sender flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(sender), 0)
+func NotificationsAddSenderName(builder *flatbuffers.Builder, senderName flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(senderName), 0)
+}
+func NotificationsAddSenderId(builder *flatbuffers.Builder, senderId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(senderId), 0)
 }
 func NotificationsAddRoot(builder *flatbuffers.Builder, root flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(root), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(root), 0)
 }
-func NotificationsAddHeader(builder *flatbuffers.Builder, header flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(header), 0)
+func NotificationsAddSenderMediaId(builder *flatbuffers.Builder, senderMediaId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(senderMediaId), 0)
+}
+func NotificationsAddGroupMediaId(builder *flatbuffers.Builder, groupMediaId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(groupMediaId), 0)
+}
+func NotificationsAddTitle(builder *flatbuffers.Builder, title flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(title), 0)
 }
 func NotificationsAddBody(builder *flatbuffers.Builder, body flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(body), 0)
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(body), 0)
 }
-func NotificationsAddTargets(builder *flatbuffers.Builder, targets flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(targets), 0)
+func NotificationsAddIsGroup(builder *flatbuffers.Builder, isGroup bool) {
+	builder.PrependBoolSlot(7, isGroup, false)
 }
-func NotificationsStartTargetsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+func NotificationsAddTokens(builder *flatbuffers.Builder, tokens flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(tokens), 0)
+}
+func NotificationsStartTokensVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func NotificationsEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {

@@ -15,17 +15,16 @@ type MessageEventT struct {
 	MessageId string `json:"message_id"`
 	Root string `json:"root"`
 	Tag string `json:"tag"`
-	Timestamp uint64 `json:"timestamp"`
+	Timestamp int64 `json:"timestamp"`
 	ForwardedFrom string `json:"forwarded_from"`
 	ForwardedFromTag string `json:"forwarded_from_tag"`
 	Nodes []string `json:"nodes"`
 	Replies []string `json:"replies"`
 	Txt string `json:"txt"`
-	MediaRef *MediaRefT `json:"media_ref"`
-	PaymentRef *PaymentRefT `json:"payment_ref"`
+	MediaRef *MediaReferenceT `json:"media_ref"`
+	PaymentRef *MediaReferenceT `json:"payment_ref"`
 	Emoji string `json:"emoji"`
-	Sticks []*StickerT `json:"sticks"`
-	SnipSize *OffsetT `json:"snip_size"`
+	Sniper *SniperT `json:"sniper"`
 }
 
 func (t *MessageEventT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -101,19 +100,7 @@ func (t *MessageEventT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT 
 	if t.Emoji != "" {
 		emojiOffset = builder.CreateString(t.Emoji)
 	}
-	sticksOffset := flatbuffers.UOffsetT(0)
-	if t.Sticks != nil {
-		sticksLength := len(t.Sticks)
-		sticksOffsets := make([]flatbuffers.UOffsetT, sticksLength)
-		for j := 0; j < sticksLength; j++ {
-			sticksOffsets[j] = t.Sticks[j].Pack(builder)
-		}
-		MessageEventStartSticksVector(builder, sticksLength)
-		for j := sticksLength - 1; j >= 0; j-- {
-			builder.PrependUOffsetT(sticksOffsets[j])
-		}
-		sticksOffset = builder.EndVector(sticksLength)
-	}
+	sniperOffset := t.Sniper.Pack(builder)
 	MessageEventStart(builder)
 	MessageEventAddChatId(builder, chatIdOffset)
 	MessageEventAddType(builder, t.Type)
@@ -132,9 +119,7 @@ func (t *MessageEventT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT 
 	MessageEventAddMediaRef(builder, mediaRefOffset)
 	MessageEventAddPaymentRef(builder, paymentRefOffset)
 	MessageEventAddEmoji(builder, emojiOffset)
-	MessageEventAddSticks(builder, sticksOffset)
-	snipSizeOffset := t.SnipSize.Pack(builder)
-	MessageEventAddSnipSize(builder, snipSizeOffset)
+	MessageEventAddSniper(builder, sniperOffset)
 	return MessageEventEnd(builder)
 }
 
@@ -164,14 +149,7 @@ func (rcv *MessageEvent) UnPackTo(t *MessageEventT) {
 	t.MediaRef = rcv.MediaRef(nil).UnPack()
 	t.PaymentRef = rcv.PaymentRef(nil).UnPack()
 	t.Emoji = string(rcv.Emoji())
-	sticksLength := rcv.SticksLength()
-	t.Sticks = make([]*StickerT, sticksLength)
-	for j := 0; j < sticksLength; j++ {
-		x := Sticker{}
-		rcv.Sticks(&x, j)
-		t.Sticks[j] = x.UnPack()
-	}
-	t.SnipSize = rcv.SnipSize(nil).UnPack()
+	t.Sniper = rcv.Sniper(nil).UnPack()
 }
 
 func (rcv *MessageEvent) UnPack() *MessageEventT {
@@ -291,16 +269,16 @@ func (rcv *MessageEvent) Tag() []byte {
 	return nil
 }
 
-func (rcv *MessageEvent) Timestamp() uint64 {
+func (rcv *MessageEvent) Timestamp() int64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
-		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *MessageEvent) MutateTimestamp(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(20, n)
+func (rcv *MessageEvent) MutateTimestamp(n int64) bool {
+	return rcv._tab.MutateInt64Slot(20, n)
 }
 
 func (rcv *MessageEvent) ForwardedFrom() []byte {
@@ -361,12 +339,12 @@ func (rcv *MessageEvent) Txt() []byte {
 	return nil
 }
 
-func (rcv *MessageEvent) MediaRef(obj *MediaRef) *MediaRef {
+func (rcv *MessageEvent) MediaRef(obj *MediaReference) *MediaReference {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
-			obj = new(MediaRef)
+			obj = new(MediaReference)
 		}
 		obj.Init(rcv._tab.Bytes, x)
 		return obj
@@ -374,12 +352,12 @@ func (rcv *MessageEvent) MediaRef(obj *MediaRef) *MediaRef {
 	return nil
 }
 
-func (rcv *MessageEvent) PaymentRef(obj *PaymentRef) *PaymentRef {
+func (rcv *MessageEvent) PaymentRef(obj *MediaReference) *MediaReference {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
-			obj = new(PaymentRef)
+			obj = new(MediaReference)
 		}
 		obj.Init(rcv._tab.Bytes, x)
 		return obj
@@ -395,32 +373,12 @@ func (rcv *MessageEvent) Emoji() []byte {
 	return nil
 }
 
-func (rcv *MessageEvent) Sticks(obj *Sticker, j int) bool {
+func (rcv *MessageEvent) Sniper(obj *Sniper) *Sniper {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
 	if o != 0 {
-		x := rcv._tab.Vector(o)
-		x += flatbuffers.UOffsetT(j) * 4
-		x = rcv._tab.Indirect(x)
-		obj.Init(rcv._tab.Bytes, x)
-		return true
-	}
-	return false
-}
-
-func (rcv *MessageEvent) SticksLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
-	if o != 0 {
-		return rcv._tab.VectorLen(o)
-	}
-	return 0
-}
-
-func (rcv *MessageEvent) SnipSize(obj *Offset) *Offset {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(40))
-	if o != 0 {
-		x := o + rcv._tab.Pos
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
-			obj = new(Offset)
+			obj = new(Sniper)
 		}
 		obj.Init(rcv._tab.Bytes, x)
 		return obj
@@ -429,7 +387,7 @@ func (rcv *MessageEvent) SnipSize(obj *Offset) *Offset {
 }
 
 func MessageEventStart(builder *flatbuffers.Builder) {
-	builder.StartObject(19)
+	builder.StartObject(18)
 }
 func MessageEventAddChatId(builder *flatbuffers.Builder, chatId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(chatId), 0)
@@ -455,8 +413,8 @@ func MessageEventAddRoot(builder *flatbuffers.Builder, root flatbuffers.UOffsetT
 func MessageEventAddTag(builder *flatbuffers.Builder, tag flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(tag), 0)
 }
-func MessageEventAddTimestamp(builder *flatbuffers.Builder, timestamp uint64) {
-	builder.PrependUint64Slot(8, timestamp, 0)
+func MessageEventAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
+	builder.PrependInt64Slot(8, timestamp, 0)
 }
 func MessageEventAddForwardedFrom(builder *flatbuffers.Builder, forwardedFrom flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(9, flatbuffers.UOffsetT(forwardedFrom), 0)
@@ -488,14 +446,8 @@ func MessageEventAddPaymentRef(builder *flatbuffers.Builder, paymentRef flatbuff
 func MessageEventAddEmoji(builder *flatbuffers.Builder, emoji flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(16, flatbuffers.UOffsetT(emoji), 0)
 }
-func MessageEventAddSticks(builder *flatbuffers.Builder, sticks flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(17, flatbuffers.UOffsetT(sticks), 0)
-}
-func MessageEventStartSticksVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(4, numElems, 4)
-}
-func MessageEventAddSnipSize(builder *flatbuffers.Builder, snipSize flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(18, flatbuffers.UOffsetT(snipSize), 0)
+func MessageEventAddSniper(builder *flatbuffers.Builder, sniper flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(17, flatbuffers.UOffsetT(sniper), 0)
 }
 func MessageEventEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

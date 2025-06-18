@@ -12,6 +12,8 @@ type RootT struct {
 	Secondary *NodeIdT `json:"secondary"`
 	Timestamp int64 `json:"timestamp"`
 	ChatPlace uint16 `json:"chat_place"`
+	Confirmed bool `json:"confirmed"`
+	U32 uint32 `json:"u32"`
 }
 
 func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -26,6 +28,8 @@ func (t *RootT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	RootAddSecondary(builder, secondaryOffset)
 	RootAddTimestamp(builder, t.Timestamp)
 	RootAddChatPlace(builder, t.ChatPlace)
+	RootAddConfirmed(builder, t.Confirmed)
+	RootAddU32(builder, t.U32)
 	return RootEnd(builder)
 }
 
@@ -35,6 +39,8 @@ func (rcv *Root) UnPackTo(t *RootT) {
 	t.Secondary = rcv.Secondary(nil).UnPack()
 	t.Timestamp = rcv.Timestamp()
 	t.ChatPlace = rcv.ChatPlace()
+	t.Confirmed = rcv.Confirmed()
+	t.U32 = rcv.U32()
 }
 
 func (rcv *Root) UnPack() *RootT {
@@ -143,8 +149,32 @@ func (rcv *Root) MutateChatPlace(n uint16) bool {
 	return rcv._tab.MutateUint16Slot(12, n)
 }
 
+func (rcv *Root) Confirmed() bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
+	}
+	return false
+}
+
+func (rcv *Root) MutateConfirmed(n bool) bool {
+	return rcv._tab.MutateBoolSlot(14, n)
+}
+
+func (rcv *Root) U32() uint32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Root) MutateU32(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(16, n)
+}
+
 func RootStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
+	builder.StartObject(7)
 }
 func RootAddPrefix(builder *flatbuffers.Builder, prefix byte) {
 	builder.PrependByteSlot(0, prefix, 0)
@@ -160,6 +190,12 @@ func RootAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 }
 func RootAddChatPlace(builder *flatbuffers.Builder, chatPlace uint16) {
 	builder.PrependUint16Slot(4, chatPlace, 0)
+}
+func RootAddConfirmed(builder *flatbuffers.Builder, confirmed bool) {
+	builder.PrependBoolSlot(5, confirmed, false)
+}
+func RootAddU32(builder *flatbuffers.Builder, u32 uint32) {
+	builder.PrependUint32Slot(6, u32, 0)
 }
 func RootEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
