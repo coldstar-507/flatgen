@@ -11,8 +11,10 @@ const (
 	IdSizeTxVersion IdSize = 10
 	IdSizeIddev     IdSize = 13
 	IdSizeMediaId   IdSize = 19
+	IdSizeRoom2     IdSize = 19
 	IdSizeMediaRef  IdSize = 31
 	IdSizeRoom      IdSize = 32
+	IdSizeMsgId2    IdSize = 33
 	IdSizeTxid      IdSize = 33
 	IdSizeSticker   IdSize = 40
 	IdSizeMsgId     IdSize = 46
@@ -23,8 +25,10 @@ var EnumNamesIdSize = map[IdSize]string{
 	IdSizeTxVersion: "TxVersion",
 	IdSizeIddev:     "Iddev",
 	IdSizeMediaId:   "MediaId",
+	IdSizeRoom2:     "Room2",
 	IdSizeMediaRef:  "MediaRef",
 	IdSizeRoom:      "Room",
+	IdSizeMsgId2:    "MsgId2",
 	IdSizeTxid:      "Txid",
 	IdSizeSticker:   "Sticker",
 	IdSizeMsgId:     "MsgId",
@@ -35,8 +39,10 @@ var EnumValuesIdSize = map[string]IdSize{
 	"TxVersion": IdSizeTxVersion,
 	"Iddev":     IdSizeIddev,
 	"MediaId":   IdSizeMediaId,
+	"Room2":     IdSizeRoom2,
 	"MediaRef":  IdSizeMediaRef,
 	"Room":      IdSizeRoom,
+	"MsgId2":    IdSizeMsgId2,
 	"Txid":      IdSizeTxid,
 	"Sticker":   IdSizeSticker,
 	"MsgId":     IdSizeMsgId,

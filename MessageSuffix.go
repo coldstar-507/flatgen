@@ -14,6 +14,7 @@ const (
 	MessageSuffixReaction    MessageSuffix = 4
 	MessageSuffixIncrement   MessageSuffix = 5
 	MessageSuffixPlaceholder MessageSuffix = 6
+	MessageSuffixBoost       MessageSuffix = 7
 )
 
 var EnumNamesMessageSuffix = map[MessageSuffix]string{
@@ -24,6 +25,7 @@ var EnumNamesMessageSuffix = map[MessageSuffix]string{
 	MessageSuffixReaction:    "Reaction",
 	MessageSuffixIncrement:   "Increment",
 	MessageSuffixPlaceholder: "Placeholder",
+	MessageSuffixBoost:       "Boost",
 }
 
 var EnumValuesMessageSuffix = map[string]MessageSuffix{
@@ -34,6 +36,7 @@ var EnumValuesMessageSuffix = map[string]MessageSuffix{
 	"Reaction":    MessageSuffixReaction,
 	"Increment":   MessageSuffixIncrement,
 	"Placeholder": MessageSuffixPlaceholder,
+	"Boost":       MessageSuffixBoost,
 }
 
 func (v MessageSuffix) String() string {

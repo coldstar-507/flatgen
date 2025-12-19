@@ -7,42 +7,69 @@ import "strconv"
 type IdKind byte
 
 const (
-	IdKindMessage  IdKind = 0
-	IdKindRoom     IdKind = 1
-	IdKindMedia    IdKind = 2
-	IdKindMediaRef IdKind = 3
-	IdKindTxRef    IdKind = 4
-	IdKindPush     IdKind = 5
-	IdKindSnip     IdKind = 6
-	IdKindIddev    IdKind = 7
-	IdKindSticker  IdKind = 8
-	IdKindBoost    IdKind = 9
+	IdKindMessage      IdKind = 0
+	IdKindMessage2     IdKind = 1
+	IdKindRoom         IdKind = 2
+	IdKindRoom2        IdKind = 3
+	IdKindMedia        IdKind = 4
+	IdKindMediaRef     IdKind = 5
+	IdKindIddev        IdKind = 6
+	IdKindSticker      IdKind = 7
+	IdKindBoost        IdKind = 8
+	IdKindPaymentRef   IdKind = 9
+	IdKindPayment      IdKind = 10
+	IdKindTxout        IdKind = 11
+	IdKindTxin         IdKind = 12
+	IdKindStatic       IdKind = 13
+	IdKindTxid         IdKind = 14
+	IdKindHex          IdKind = 15
+	IdKindTimestamp    IdKind = 16
+	IdKindVersionstamp IdKind = 17
+	IdKindStrings      IdKind = 18
 )
 
 var EnumNamesIdKind = map[IdKind]string{
-	IdKindMessage:  "Message",
-	IdKindRoom:     "Room",
-	IdKindMedia:    "Media",
-	IdKindMediaRef: "MediaRef",
-	IdKindTxRef:    "TxRef",
-	IdKindPush:     "Push",
-	IdKindSnip:     "Snip",
-	IdKindIddev:    "Iddev",
-	IdKindSticker:  "Sticker",
-	IdKindBoost:    "Boost",
+	IdKindMessage:      "Message",
+	IdKindMessage2:     "Message2",
+	IdKindRoom:         "Room",
+	IdKindRoom2:        "Room2",
+	IdKindMedia:        "Media",
+	IdKindMediaRef:     "MediaRef",
+	IdKindIddev:        "Iddev",
+	IdKindSticker:      "Sticker",
+	IdKindBoost:        "Boost",
+	IdKindPaymentRef:   "PaymentRef",
+	IdKindPayment:      "Payment",
+	IdKindTxout:        "Txout",
+	IdKindTxin:         "Txin",
+	IdKindStatic:       "Static",
+	IdKindTxid:         "Txid",
+	IdKindHex:          "Hex",
+	IdKindTimestamp:    "Timestamp",
+	IdKindVersionstamp: "Versionstamp",
+	IdKindStrings:      "Strings",
 }
 
 var EnumValuesIdKind = map[string]IdKind{
-	"Message":  IdKindMessage,
-	"Room":     IdKindRoom,
-	"Media":    IdKindMedia,
-	"MediaRef": IdKindMediaRef,
-	"TxRef":    IdKindTxRef,
-	"Push":     IdKindPush,
-	"Snip":     IdKindSnip,
-	"Iddev":    IdKindIddev,
-	"Sticker":  IdKindSticker,
-	"Boost":    IdKindBoost,
+	"Message":      IdKindMessage,
+	"Message2":     IdKindMessage2,
+	"Room":         IdKindRoom,
+	"Room2":        IdKindRoom2,
+	"Media":        IdKindMedia,
+	"MediaRef":     IdKindMediaRef,
+	"Iddev":        IdKindIddev,
+	"Sticker":      IdKindSticker,
+	"Boost":        IdKindBoost,
+	"PaymentRef":   IdKindPaymentRef,
+	"Payment":      IdKindPayment,
+	"Txout":        IdKindTxout,
+	"Txin":         IdKindTxin,
+	"Static":       IdKindStatic,
+	"Txid":         IdKindTxid,
+	"Hex":          IdKindHex,
+	"Timestamp":    IdKindTimestamp,
+	"Versionstamp": IdKindVersionstamp,
+	"Strings":      IdKindStrings,
 }
 
 func (v IdKind) String() string {
