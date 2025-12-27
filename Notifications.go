@@ -8,7 +8,7 @@ import (
 
 type NotificationsT struct {
 	SenderName string `json:"sender_name"`
-	SenderId string `json:"sender_id"`
+	SenderId uint64 `json:"sender_id"`
 	Root string `json:"root"`
 	SenderMediaId string `json:"sender_media_id"`
 	GroupMediaId string `json:"group_media_id"`
@@ -25,10 +25,6 @@ func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	senderNameOffset := flatbuffers.UOffsetT(0)
 	if t.SenderName != "" {
 		senderNameOffset = builder.CreateString(t.SenderName)
-	}
-	senderIdOffset := flatbuffers.UOffsetT(0)
-	if t.SenderId != "" {
-		senderIdOffset = builder.CreateString(t.SenderId)
 	}
 	rootOffset := flatbuffers.UOffsetT(0)
 	if t.Root != "" {
@@ -65,7 +61,7 @@ func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	}
 	NotificationsStart(builder)
 	NotificationsAddSenderName(builder, senderNameOffset)
-	NotificationsAddSenderId(builder, senderIdOffset)
+	NotificationsAddSenderId(builder, t.SenderId)
 	NotificationsAddRoot(builder, rootOffset)
 	NotificationsAddSenderMediaId(builder, senderMediaIdOffset)
 	NotificationsAddGroupMediaId(builder, groupMediaIdOffset)
@@ -78,7 +74,7 @@ func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 
 func (rcv *Notifications) UnPackTo(t *NotificationsT) {
 	t.SenderName = string(rcv.SenderName())
-	t.SenderId = string(rcv.SenderId())
+	t.SenderId = rcv.SenderId()
 	t.Root = string(rcv.Root())
 	t.SenderMediaId = string(rcv.SenderMediaId())
 	t.GroupMediaId = string(rcv.GroupMediaId())
@@ -144,12 +140,16 @@ func (rcv *Notifications) SenderName() []byte {
 	return nil
 }
 
-func (rcv *Notifications) SenderId() []byte {
+func (rcv *Notifications) SenderId() uint64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
-	return nil
+	return 0
+}
+
+func (rcv *Notifications) MutateSenderId(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(6, n)
 }
 
 func (rcv *Notifications) Root() []byte {
@@ -227,8 +227,8 @@ func NotificationsStart(builder *flatbuffers.Builder) {
 func NotificationsAddSenderName(builder *flatbuffers.Builder, senderName flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(senderName), 0)
 }
-func NotificationsAddSenderId(builder *flatbuffers.Builder, senderId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(senderId), 0)
+func NotificationsAddSenderId(builder *flatbuffers.Builder, senderId uint64) {
+	builder.PrependUint64Slot(1, senderId, 0)
 }
 func NotificationsAddRoot(builder *flatbuffers.Builder, root flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(root), 0)

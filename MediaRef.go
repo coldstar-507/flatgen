@@ -7,10 +7,10 @@ import (
 )
 
 type MediaRefT struct {
-	Prefix int8 `json:"prefix"`
+	Prefix IdKind `json:"prefix"`
 	Timestamp int64 `json:"timestamp"`
 	MediaId *MediaIdT `json:"media_id"`
-	Place uint16 `json:"place"`
+	ClusterId uint16 `json:"cluster_id"`
 	Permanent bool `json:"permanent"`
 }
 
@@ -23,7 +23,7 @@ func (t *MediaRefT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	MediaRefAddPrefix(builder, t.Prefix)
 	MediaRefAddTimestamp(builder, t.Timestamp)
 	MediaRefAddMediaId(builder, mediaIdOffset)
-	MediaRefAddPlace(builder, t.Place)
+	MediaRefAddClusterId(builder, t.ClusterId)
 	MediaRefAddPermanent(builder, t.Permanent)
 	return MediaRefEnd(builder)
 }
@@ -32,7 +32,7 @@ func (rcv *MediaRef) UnPackTo(t *MediaRefT) {
 	t.Prefix = rcv.Prefix()
 	t.Timestamp = rcv.Timestamp()
 	t.MediaId = rcv.MediaId(nil).UnPack()
-	t.Place = rcv.Place()
+	t.ClusterId = rcv.ClusterId()
 	t.Permanent = rcv.Permanent()
 }
 
@@ -80,16 +80,16 @@ func (rcv *MediaRef) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MediaRef) Prefix() int8 {
+func (rcv *MediaRef) Prefix() IdKind {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+		return IdKind(rcv._tab.GetByte(o + rcv._tab.Pos))
 	}
 	return 0
 }
 
-func (rcv *MediaRef) MutatePrefix(n int8) bool {
-	return rcv._tab.MutateInt8Slot(4, n)
+func (rcv *MediaRef) MutatePrefix(n IdKind) bool {
+	return rcv._tab.MutateByteSlot(4, byte(n))
 }
 
 func (rcv *MediaRef) Timestamp() int64 {
@@ -117,7 +117,7 @@ func (rcv *MediaRef) MediaId(obj *MediaId) *MediaId {
 	return nil
 }
 
-func (rcv *MediaRef) Place() uint16 {
+func (rcv *MediaRef) ClusterId() uint16 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.GetUint16(o + rcv._tab.Pos)
@@ -125,7 +125,7 @@ func (rcv *MediaRef) Place() uint16 {
 	return 0
 }
 
-func (rcv *MediaRef) MutatePlace(n uint16) bool {
+func (rcv *MediaRef) MutateClusterId(n uint16) bool {
 	return rcv._tab.MutateUint16Slot(10, n)
 }
 
@@ -144,8 +144,8 @@ func (rcv *MediaRef) MutatePermanent(n bool) bool {
 func MediaRefStart(builder *flatbuffers.Builder) {
 	builder.StartObject(5)
 }
-func MediaRefAddPrefix(builder *flatbuffers.Builder, prefix int8) {
-	builder.PrependInt8Slot(0, prefix, 0)
+func MediaRefAddPrefix(builder *flatbuffers.Builder, prefix IdKind) {
+	builder.PrependByteSlot(0, byte(prefix), 0)
 }
 func MediaRefAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 	builder.PrependInt64Slot(1, timestamp, 0)
@@ -153,8 +153,8 @@ func MediaRefAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 func MediaRefAddMediaId(builder *flatbuffers.Builder, mediaId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(mediaId), 0)
 }
-func MediaRefAddPlace(builder *flatbuffers.Builder, place uint16) {
-	builder.PrependUint16Slot(3, place, 0)
+func MediaRefAddClusterId(builder *flatbuffers.Builder, clusterId uint16) {
+	builder.PrependUint16Slot(3, clusterId, 0)
 }
 func MediaRefAddPermanent(builder *flatbuffers.Builder, permanent bool) {
 	builder.PrependBoolSlot(4, permanent, false)

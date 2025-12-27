@@ -7,24 +7,21 @@ import (
 )
 
 type BoosterT struct {
-	Prefix byte `json:"prefix"`
 	Timestamp int64 `json:"timestamp"`
-	RawNodeId []byte `json:"raw_node_id"`
+	SenderId uint64 `json:"sender_id"`
+	ReceiverId uint64 `json:"receiver_id"`
 	Sats uint32 `json:"sats"`
 	Txid []byte `json:"txid"`
 	Secret []byte `json:"secret"`
 	UtxoIx uint32 `json:"utxo_ix"`
+	Nonce uint32 `json:"nonce"`
 	Interests []string `json:"interests"`
-	MsgId *MessageIdT `json:"msg_id"`
+	MsgId []byte `json:"msg_id"`
 }
 
 func (t *BoosterT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil {
 		return 0
-	}
-	rawNodeIdOffset := flatbuffers.UOffsetT(0)
-	if t.RawNodeId != nil {
-		rawNodeIdOffset = builder.CreateByteString(t.RawNodeId)
 	}
 	txidOffset := flatbuffers.UOffsetT(0)
 	if t.Txid != nil {
@@ -47,34 +44,39 @@ func (t *BoosterT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		}
 		interestsOffset = builder.EndVector(interestsLength)
 	}
-	msgIdOffset := t.MsgId.Pack(builder)
+	msgIdOffset := flatbuffers.UOffsetT(0)
+	if t.MsgId != nil {
+		msgIdOffset = builder.CreateByteString(t.MsgId)
+	}
 	BoosterStart(builder)
-	BoosterAddPrefix(builder, t.Prefix)
 	BoosterAddTimestamp(builder, t.Timestamp)
-	BoosterAddRawNodeId(builder, rawNodeIdOffset)
+	BoosterAddSenderId(builder, t.SenderId)
+	BoosterAddReceiverId(builder, t.ReceiverId)
 	BoosterAddSats(builder, t.Sats)
 	BoosterAddTxid(builder, txidOffset)
 	BoosterAddSecret(builder, secretOffset)
 	BoosterAddUtxoIx(builder, t.UtxoIx)
+	BoosterAddNonce(builder, t.Nonce)
 	BoosterAddInterests(builder, interestsOffset)
 	BoosterAddMsgId(builder, msgIdOffset)
 	return BoosterEnd(builder)
 }
 
 func (rcv *Booster) UnPackTo(t *BoosterT) {
-	t.Prefix = rcv.Prefix()
 	t.Timestamp = rcv.Timestamp()
-	t.RawNodeId = rcv.RawNodeIdBytes()
+	t.SenderId = rcv.SenderId()
+	t.ReceiverId = rcv.ReceiverId()
 	t.Sats = rcv.Sats()
 	t.Txid = rcv.TxidBytes()
 	t.Secret = rcv.SecretBytes()
 	t.UtxoIx = rcv.UtxoIx()
+	t.Nonce = rcv.Nonce()
 	interestsLength := rcv.InterestsLength()
 	t.Interests = make([]string, interestsLength)
 	for j := 0; j < interestsLength; j++ {
 		t.Interests[j] = string(rcv.Interests(j))
 	}
-	t.MsgId = rcv.MsgId(nil).UnPack()
+	t.MsgId = rcv.MsgIdBytes()
 }
 
 func (rcv *Booster) UnPack() *BoosterT {
@@ -121,20 +123,8 @@ func (rcv *Booster) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Booster) Prefix() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Booster) MutatePrefix(n byte) bool {
-	return rcv._tab.MutateByteSlot(4, n)
-}
-
 func (rcv *Booster) Timestamp() int64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
@@ -142,41 +132,31 @@ func (rcv *Booster) Timestamp() int64 {
 }
 
 func (rcv *Booster) MutateTimestamp(n int64) bool {
-	return rcv._tab.MutateInt64Slot(6, n)
+	return rcv._tab.MutateInt64Slot(4, n)
 }
 
-func (rcv *Booster) RawNodeId(j int) byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+func (rcv *Booster) SenderId() uint64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		a := rcv._tab.Vector(o)
-		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *Booster) RawNodeIdLength() int {
+func (rcv *Booster) MutateSenderId(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(6, n)
+}
+
+func (rcv *Booster) ReceiverId() uint64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
-		return rcv._tab.VectorLen(o)
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *Booster) RawNodeIdBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func (rcv *Booster) MutateRawNodeId(j int, n byte) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		a := rcv._tab.Vector(o)
-		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
-	}
-	return false
+func (rcv *Booster) MutateReceiverId(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(8, n)
 }
 
 func (rcv *Booster) Sats() uint32 {
@@ -271,8 +251,20 @@ func (rcv *Booster) MutateUtxoIx(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(16, n)
 }
 
-func (rcv *Booster) Interests(j int) []byte {
+func (rcv *Booster) Nonce() uint32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	if o != 0 {
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Booster) MutateNonce(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(18, n)
+}
+
+func (rcv *Booster) Interests(j int) []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -281,40 +273,58 @@ func (rcv *Booster) Interests(j int) []byte {
 }
 
 func (rcv *Booster) InterestsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
 	return 0
 }
 
-func (rcv *Booster) MsgId(obj *MessageId) *MessageId {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+func (rcv *Booster) MsgId(j int) byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
 	if o != 0 {
-		x := rcv._tab.Indirect(o + rcv._tab.Pos)
-		if obj == nil {
-			obj = new(MessageId)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
+	}
+	return 0
+}
+
+func (rcv *Booster) MsgIdLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *Booster) MsgIdBytes() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
 	return nil
 }
 
-func BoosterStart(builder *flatbuffers.Builder) {
-	builder.StartObject(9)
+func (rcv *Booster) MutateMsgId(j int, n byte) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
+	}
+	return false
 }
-func BoosterAddPrefix(builder *flatbuffers.Builder, prefix byte) {
-	builder.PrependByteSlot(0, prefix, 0)
+
+func BoosterStart(builder *flatbuffers.Builder) {
+	builder.StartObject(10)
 }
 func BoosterAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
-	builder.PrependInt64Slot(1, timestamp, 0)
+	builder.PrependInt64Slot(0, timestamp, 0)
 }
-func BoosterAddRawNodeId(builder *flatbuffers.Builder, rawNodeId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(rawNodeId), 0)
+func BoosterAddSenderId(builder *flatbuffers.Builder, senderId uint64) {
+	builder.PrependUint64Slot(1, senderId, 0)
 }
-func BoosterStartRawNodeIdVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(1, numElems, 1)
+func BoosterAddReceiverId(builder *flatbuffers.Builder, receiverId uint64) {
+	builder.PrependUint64Slot(2, receiverId, 0)
 }
 func BoosterAddSats(builder *flatbuffers.Builder, sats uint32) {
 	builder.PrependUint32Slot(3, sats, 0)
@@ -334,14 +344,20 @@ func BoosterStartSecretVector(builder *flatbuffers.Builder, numElems int) flatbu
 func BoosterAddUtxoIx(builder *flatbuffers.Builder, utxoIx uint32) {
 	builder.PrependUint32Slot(6, utxoIx, 0)
 }
+func BoosterAddNonce(builder *flatbuffers.Builder, nonce uint32) {
+	builder.PrependUint32Slot(7, nonce, 0)
+}
 func BoosterAddInterests(builder *flatbuffers.Builder, interests flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(interests), 0)
+	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(interests), 0)
 }
 func BoosterStartInterestsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func BoosterAddMsgId(builder *flatbuffers.Builder, msgId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(msgId), 0)
+	builder.PrependUOffsetTSlot(9, flatbuffers.UOffsetT(msgId), 0)
+}
+func BoosterStartMsgIdVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(1, numElems, 1)
 }
 func BoosterEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

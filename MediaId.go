@@ -7,7 +7,7 @@ import (
 )
 
 type MediaIdT struct {
-	Prefix int8 `json:"prefix"`
+	Prefix IdKind `json:"prefix"`
 	Timestamp int64 `json:"timestamp"`
 	U32 uint32 `json:"u32"`
 	AspectRatio float32 `json:"aspect_ratio"`
@@ -79,16 +79,16 @@ func (rcv *MediaId) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MediaId) Prefix() int8 {
+func (rcv *MediaId) Prefix() IdKind {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+		return IdKind(rcv._tab.GetByte(o + rcv._tab.Pos))
 	}
 	return 0
 }
 
-func (rcv *MediaId) MutatePrefix(n int8) bool {
-	return rcv._tab.MutateInt8Slot(4, n)
+func (rcv *MediaId) MutatePrefix(n IdKind) bool {
+	return rcv._tab.MutateByteSlot(4, byte(n))
 }
 
 func (rcv *MediaId) Timestamp() int64 {
@@ -142,8 +142,8 @@ func (rcv *MediaId) MutateMediaType(n uint16) bool {
 func MediaIdStart(builder *flatbuffers.Builder) {
 	builder.StartObject(5)
 }
-func MediaIdAddPrefix(builder *flatbuffers.Builder, prefix int8) {
-	builder.PrependInt8Slot(0, prefix, 0)
+func MediaIdAddPrefix(builder *flatbuffers.Builder, prefix IdKind) {
+	builder.PrependByteSlot(0, byte(prefix), 0)
 }
 func MediaIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 	builder.PrependInt64Slot(1, timestamp, 0)
