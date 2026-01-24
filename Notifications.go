@@ -15,7 +15,6 @@ type NotificationsT struct {
 	Title string `json:"title"`
 	Body string `json:"body"`
 	IsGroup bool `json:"is_group"`
-	Tokens []string `json:"tokens"`
 }
 
 func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -46,19 +45,6 @@ func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	if t.Body != "" {
 		bodyOffset = builder.CreateString(t.Body)
 	}
-	tokensOffset := flatbuffers.UOffsetT(0)
-	if t.Tokens != nil {
-		tokensLength := len(t.Tokens)
-		tokensOffsets := make([]flatbuffers.UOffsetT, tokensLength)
-		for j := 0; j < tokensLength; j++ {
-			tokensOffsets[j] = builder.CreateString(t.Tokens[j])
-		}
-		NotificationsStartTokensVector(builder, tokensLength)
-		for j := tokensLength - 1; j >= 0; j-- {
-			builder.PrependUOffsetT(tokensOffsets[j])
-		}
-		tokensOffset = builder.EndVector(tokensLength)
-	}
 	NotificationsStart(builder)
 	NotificationsAddSenderName(builder, senderNameOffset)
 	NotificationsAddSenderId(builder, t.SenderId)
@@ -68,7 +54,6 @@ func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	NotificationsAddTitle(builder, titleOffset)
 	NotificationsAddBody(builder, bodyOffset)
 	NotificationsAddIsGroup(builder, t.IsGroup)
-	NotificationsAddTokens(builder, tokensOffset)
 	return NotificationsEnd(builder)
 }
 
@@ -81,11 +66,6 @@ func (rcv *Notifications) UnPackTo(t *NotificationsT) {
 	t.Title = string(rcv.Title())
 	t.Body = string(rcv.Body())
 	t.IsGroup = rcv.IsGroup()
-	tokensLength := rcv.TokensLength()
-	t.Tokens = make([]string, tokensLength)
-	for j := 0; j < tokensLength; j++ {
-		t.Tokens[j] = string(rcv.Tokens(j))
-	}
 }
 
 func (rcv *Notifications) UnPack() *NotificationsT {
@@ -204,25 +184,8 @@ func (rcv *Notifications) MutateIsGroup(n bool) bool {
 	return rcv._tab.MutateBoolSlot(18, n)
 }
 
-func (rcv *Notifications) Tokens(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
-	if o != 0 {
-		a := rcv._tab.Vector(o)
-		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
-	}
-	return nil
-}
-
-func (rcv *Notifications) TokensLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
-	if o != 0 {
-		return rcv._tab.VectorLen(o)
-	}
-	return 0
-}
-
 func NotificationsStart(builder *flatbuffers.Builder) {
-	builder.StartObject(9)
+	builder.StartObject(8)
 }
 func NotificationsAddSenderName(builder *flatbuffers.Builder, senderName flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(senderName), 0)
@@ -247,12 +210,6 @@ func NotificationsAddBody(builder *flatbuffers.Builder, body flatbuffers.UOffset
 }
 func NotificationsAddIsGroup(builder *flatbuffers.Builder, isGroup bool) {
 	builder.PrependBoolSlot(7, isGroup, false)
-}
-func NotificationsAddTokens(builder *flatbuffers.Builder, tokens flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(tokens), 0)
-}
-func NotificationsStartTokensVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(4, numElems, 4)
 }
 func NotificationsEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -25,6 +25,7 @@ const (
 	IdKindVersionstamp IdKind = 15
 	IdKindStrings      IdKind = 16
 	IdKindThumbnail    IdKind = 17
+	IdKindAccess       IdKind = 18
 )
 
 var EnumNamesIdKind = map[IdKind]string{
@@ -46,6 +47,7 @@ var EnumNamesIdKind = map[IdKind]string{
 	IdKindVersionstamp: "Versionstamp",
 	IdKindStrings:      "Strings",
 	IdKindThumbnail:    "Thumbnail",
+	IdKindAccess:       "Access",
 }
 
 var EnumValuesIdKind = map[string]IdKind{
@@ -67,6 +69,7 @@ var EnumValuesIdKind = map[string]IdKind{
 	"Versionstamp": IdKindVersionstamp,
 	"Strings":      IdKindStrings,
 	"Thumbnail":    IdKindThumbnail,
+	"Access":       IdKindAccess,
 }
 
 func (v IdKind) String() string {
