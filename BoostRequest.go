@@ -23,6 +23,7 @@ type BoostRequestT struct {
 	InputSats uint64 `json:"input_sats"`
 	FeeSats uint64 `json:"fee_sats"`
 	FeeBytes uint64 `json:"fee_bytes"`
+	PartialTxId []byte `json:"partial_tx_id"`
 }
 
 func (t *BoostRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -62,6 +63,10 @@ func (t *BoostRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT 
 	if t.Tx != nil {
 		txOffset = builder.CreateByteString(t.Tx)
 	}
+	partialTxIdOffset := flatbuffers.UOffsetT(0)
+	if t.PartialTxId != nil {
+		partialTxIdOffset = builder.CreateByteString(t.PartialTxId)
+	}
 	BoostRequestStart(builder)
 	BoostRequestAddJobId(builder, jobIdOffset)
 	BoostRequestAddClusterName(builder, clusterNameOffset)
@@ -79,6 +84,7 @@ func (t *BoostRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT 
 	BoostRequestAddInputSats(builder, t.InputSats)
 	BoostRequestAddFeeSats(builder, t.FeeSats)
 	BoostRequestAddFeeBytes(builder, t.FeeBytes)
+	BoostRequestAddPartialTxId(builder, partialTxIdOffset)
 	return BoostRequestEnd(builder)
 }
 
@@ -99,6 +105,7 @@ func (rcv *BoostRequest) UnPackTo(t *BoostRequestT) {
 	t.InputSats = rcv.InputSats()
 	t.FeeSats = rcv.FeeSats()
 	t.FeeBytes = rcv.FeeBytes()
+	t.PartialTxId = rcv.PartialTxIdBytes()
 }
 
 func (rcv *BoostRequest) UnPack() *BoostRequestT {
@@ -436,8 +443,42 @@ func (rcv *BoostRequest) MutateFeeBytes(n uint64) bool {
 	return rcv._tab.MutateUint64Slot(34, n)
 }
 
+func (rcv *BoostRequest) PartialTxId(j int) byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
+	}
+	return 0
+}
+
+func (rcv *BoostRequest) PartialTxIdLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *BoostRequest) PartialTxIdBytes() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *BoostRequest) MutatePartialTxId(j int, n byte) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
+	}
+	return false
+}
+
 func BoostRequestStart(builder *flatbuffers.Builder) {
-	builder.StartObject(16)
+	builder.StartObject(17)
 }
 func BoostRequestAddJobId(builder *flatbuffers.Builder, jobId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(jobId), 0)
@@ -501,6 +542,12 @@ func BoostRequestAddFeeSats(builder *flatbuffers.Builder, feeSats uint64) {
 }
 func BoostRequestAddFeeBytes(builder *flatbuffers.Builder, feeBytes uint64) {
 	builder.PrependUint64Slot(15, feeBytes, 0)
+}
+func BoostRequestAddPartialTxId(builder *flatbuffers.Builder, partialTxId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(16, flatbuffers.UOffsetT(partialTxId), 0)
+}
+func BoostRequestStartPartialTxIdVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(1, numElems, 1)
 }
 func BoostRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
