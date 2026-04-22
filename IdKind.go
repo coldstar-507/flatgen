@@ -7,31 +7,32 @@ import "strconv"
 type IdKind byte
 
 const (
-	IdKindMessage      IdKind = 0
-	IdKindMessage2     IdKind = 1
-	IdKindRoom         IdKind = 2
-	IdKindRoom2        IdKind = 3
-	IdKindMedia        IdKind = 4
-	IdKindMediaRef     IdKind = 5
-	IdKindIddev        IdKind = 6
-	IdKindSticker      IdKind = 7
-	IdKindBoost        IdKind = 8
-	IdKindPaymentRef   IdKind = 9
-	IdKindPayment      IdKind = 10
-	IdKindTxout        IdKind = 11
-	IdKindTxin         IdKind = 12
-	IdKindStatic       IdKind = 13
-	IdKindTxid         IdKind = 14
-	IdKindHex          IdKind = 15
-	IdKindTimestamp    IdKind = 16
-	IdKindVersionstamp IdKind = 17
-	IdKindStrings      IdKind = 18
+	IdKindMessage2     IdKind = 0
+	IdKindRoom2        IdKind = 1
+	IdKindMedia        IdKind = 2
+	IdKindMediaRef     IdKind = 3
+	IdKindIddev        IdKind = 4
+	IdKindSticker      IdKind = 5
+	IdKindBoost        IdKind = 6
+	IdKindPaymentRef   IdKind = 7
+	IdKindPayment      IdKind = 8
+	IdKindTxout        IdKind = 9
+	IdKindTxin         IdKind = 10
+	IdKindStatic       IdKind = 11
+	IdKindTxid         IdKind = 12
+	IdKindHex          IdKind = 13
+	IdKindTimestamp    IdKind = 14
+	IdKindVersionstamp IdKind = 15
+	IdKindStrings      IdKind = 16
+	IdKindThumbnail    IdKind = 17
+	IdKindAccess       IdKind = 18
+	IdKindFunding      IdKind = 19
+	IdKindBoosting     IdKind = 20
+	IdKindNaivePayment IdKind = 21
 )
 
 var EnumNamesIdKind = map[IdKind]string{
-	IdKindMessage:      "Message",
 	IdKindMessage2:     "Message2",
-	IdKindRoom:         "Room",
 	IdKindRoom2:        "Room2",
 	IdKindMedia:        "Media",
 	IdKindMediaRef:     "MediaRef",
@@ -48,12 +49,15 @@ var EnumNamesIdKind = map[IdKind]string{
 	IdKindTimestamp:    "Timestamp",
 	IdKindVersionstamp: "Versionstamp",
 	IdKindStrings:      "Strings",
+	IdKindThumbnail:    "Thumbnail",
+	IdKindAccess:       "Access",
+	IdKindFunding:      "Funding",
+	IdKindBoosting:     "Boosting",
+	IdKindNaivePayment: "NaivePayment",
 }
 
 var EnumValuesIdKind = map[string]IdKind{
-	"Message":      IdKindMessage,
 	"Message2":     IdKindMessage2,
-	"Room":         IdKindRoom,
 	"Room2":        IdKindRoom2,
 	"Media":        IdKindMedia,
 	"MediaRef":     IdKindMediaRef,
@@ -70,6 +74,11 @@ var EnumValuesIdKind = map[string]IdKind{
 	"Timestamp":    IdKindTimestamp,
 	"Versionstamp": IdKindVersionstamp,
 	"Strings":      IdKindStrings,
+	"Thumbnail":    IdKindThumbnail,
+	"Access":       IdKindAccess,
+	"Funding":      IdKindFunding,
+	"Boosting":     IdKindBoosting,
+	"NaivePayment": IdKindNaivePayment,
 }
 
 func (v IdKind) String() string {

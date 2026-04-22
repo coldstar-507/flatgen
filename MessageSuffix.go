@@ -7,36 +7,33 @@ import "strconv"
 type MessageSuffix byte
 
 const (
-	MessageSuffixDefault     MessageSuffix = 0
+	MessageSuffixBoost       MessageSuffix = 0
 	MessageSuffixUnsent      MessageSuffix = 1
 	MessageSuffixChat        MessageSuffix = 2
 	MessageSuffixSnip        MessageSuffix = 3
 	MessageSuffixReaction    MessageSuffix = 4
 	MessageSuffixIncrement   MessageSuffix = 5
 	MessageSuffixPlaceholder MessageSuffix = 6
-	MessageSuffixBoost       MessageSuffix = 7
 )
 
 var EnumNamesMessageSuffix = map[MessageSuffix]string{
-	MessageSuffixDefault:     "Default",
+	MessageSuffixBoost:       "Boost",
 	MessageSuffixUnsent:      "Unsent",
 	MessageSuffixChat:        "Chat",
 	MessageSuffixSnip:        "Snip",
 	MessageSuffixReaction:    "Reaction",
 	MessageSuffixIncrement:   "Increment",
 	MessageSuffixPlaceholder: "Placeholder",
-	MessageSuffixBoost:       "Boost",
 }
 
 var EnumValuesMessageSuffix = map[string]MessageSuffix{
-	"Default":     MessageSuffixDefault,
+	"Boost":       MessageSuffixBoost,
 	"Unsent":      MessageSuffixUnsent,
 	"Chat":        MessageSuffixChat,
 	"Snip":        MessageSuffixSnip,
 	"Reaction":    MessageSuffixReaction,
 	"Increment":   MessageSuffixIncrement,
 	"Placeholder": MessageSuffixPlaceholder,
-	"Boost":       MessageSuffixBoost,
 }
 
 func (v MessageSuffix) String() string {
