@@ -16,6 +16,7 @@ type BoosterT struct {
 	UtxoIx uint32 `json:"utxo_ix"`
 	Interests []string `json:"interests"`
 	MsgId []byte `json:"msg_id"`
+	Nonce uint64 `json:"nonce"`
 }
 
 func (t *BoosterT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -57,6 +58,7 @@ func (t *BoosterT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	BoosterAddUtxoIx(builder, t.UtxoIx)
 	BoosterAddInterests(builder, interestsOffset)
 	BoosterAddMsgId(builder, msgIdOffset)
+	BoosterAddNonce(builder, t.Nonce)
 	return BoosterEnd(builder)
 }
 
@@ -74,6 +76,7 @@ func (rcv *Booster) UnPackTo(t *BoosterT) {
 		t.Interests[j] = string(rcv.Interests(j))
 	}
 	t.MsgId = rcv.MsgIdBytes()
+	t.Nonce = rcv.Nonce()
 }
 
 func (rcv *Booster) UnPack() *BoosterT {
@@ -299,8 +302,20 @@ func (rcv *Booster) MutateMsgId(j int, n byte) bool {
 	return false
 }
 
+func (rcv *Booster) Nonce() uint64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Booster) MutateNonce(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(22, n)
+}
+
 func BoosterStart(builder *flatbuffers.Builder) {
-	builder.StartObject(9)
+	builder.StartObject(10)
 }
 func BoosterAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 	builder.PrependInt64Slot(0, timestamp, 0)
@@ -340,6 +355,9 @@ func BoosterAddMsgId(builder *flatbuffers.Builder, msgId flatbuffers.UOffsetT) {
 }
 func BoosterStartMsgIdVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
+}
+func BoosterAddNonce(builder *flatbuffers.Builder, nonce uint64) {
+	builder.PrependUint64Slot(9, nonce, 0)
 }
 func BoosterEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
