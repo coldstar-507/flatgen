@@ -14,7 +14,7 @@ type BoostRequest2T struct {
 	DeviceId uint32 `json:"device_id"`
 	SenderId uint64 `json:"sender_id"`
 	SenderPublicKey []byte `json:"sender_public_key"`
-	SenderCreationClusterName string `json:"sender_creation_cluster_name"`
+	SenderCreationCluster uint16 `json:"sender_creation_cluster"`
 	SatsPerPerson uint32 `json:"sats_per_person"`
 	Query *BoostQueryT `json:"query"`
 	MessageId []byte `json:"message_id"`
@@ -44,10 +44,6 @@ func (t *BoostRequest2T) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	if t.SenderPublicKey != nil {
 		senderPublicKeyOffset = builder.CreateByteString(t.SenderPublicKey)
 	}
-	senderCreationClusterNameOffset := flatbuffers.UOffsetT(0)
-	if t.SenderCreationClusterName != "" {
-		senderCreationClusterNameOffset = builder.CreateString(t.SenderCreationClusterName)
-	}
 	queryOffset := t.Query.Pack(builder)
 	messageIdOffset := flatbuffers.UOffsetT(0)
 	if t.MessageId != nil {
@@ -74,7 +70,7 @@ func (t *BoostRequest2T) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 	BoostRequest2AddDeviceId(builder, t.DeviceId)
 	BoostRequest2AddSenderId(builder, t.SenderId)
 	BoostRequest2AddSenderPublicKey(builder, senderPublicKeyOffset)
-	BoostRequest2AddSenderCreationClusterName(builder, senderCreationClusterNameOffset)
+	BoostRequest2AddSenderCreationCluster(builder, t.SenderCreationCluster)
 	BoostRequest2AddSatsPerPerson(builder, t.SatsPerPerson)
 	BoostRequest2AddQuery(builder, queryOffset)
 	BoostRequest2AddMessageId(builder, messageIdOffset)
@@ -93,7 +89,7 @@ func (rcv *BoostRequest2) UnPackTo(t *BoostRequest2T) {
 	t.DeviceId = rcv.DeviceId()
 	t.SenderId = rcv.SenderId()
 	t.SenderPublicKey = rcv.SenderPublicKeyBytes()
-	t.SenderCreationClusterName = string(rcv.SenderCreationClusterName())
+	t.SenderCreationCluster = rcv.SenderCreationCluster()
 	t.SatsPerPerson = rcv.SatsPerPerson()
 	t.Query = rcv.Query(nil).UnPack()
 	t.MessageId = rcv.MessageIdBytes()
@@ -247,12 +243,16 @@ func (rcv *BoostRequest2) MutateSenderPublicKey(j int, n byte) bool {
 	return false
 }
 
-func (rcv *BoostRequest2) SenderCreationClusterName() []byte {
+func (rcv *BoostRequest2) SenderCreationCluster() uint16 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
-	return nil
+	return 0
+}
+
+func (rcv *BoostRequest2) MutateSenderCreationCluster(n uint16) bool {
+	return rcv._tab.MutateUint16Slot(18, n)
 }
 
 func (rcv *BoostRequest2) SatsPerPerson() uint32 {
@@ -397,8 +397,8 @@ func BoostRequest2AddSenderPublicKey(builder *flatbuffers.Builder, senderPublicK
 func BoostRequest2StartSenderPublicKeyVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func BoostRequest2AddSenderCreationClusterName(builder *flatbuffers.Builder, senderCreationClusterName flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(senderCreationClusterName), 0)
+func BoostRequest2AddSenderCreationCluster(builder *flatbuffers.Builder, senderCreationCluster uint16) {
+	builder.PrependUint16Slot(7, senderCreationCluster, 0)
 }
 func BoostRequest2AddSatsPerPerson(builder *flatbuffers.Builder, satsPerPerson uint32) {
 	builder.PrependUint32Slot(8, satsPerPerson, 0)
