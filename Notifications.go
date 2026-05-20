@@ -7,14 +7,14 @@ import (
 )
 
 type NotificationsT struct {
+	IsGroup bool `json:"is_group"`
 	SenderName string `json:"sender_name"`
-	SenderId uint64 `json:"sender_id"`
 	Root string `json:"root"`
 	SenderMediaId string `json:"sender_media_id"`
 	GroupMediaId string `json:"group_media_id"`
 	Title string `json:"title"`
 	Body string `json:"body"`
-	IsGroup bool `json:"is_group"`
+	SenderId uint64 `json:"sender_id"`
 }
 
 func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -46,26 +46,26 @@ func (t *NotificationsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 		bodyOffset = builder.CreateString(t.Body)
 	}
 	NotificationsStart(builder)
+	NotificationsAddIsGroup(builder, t.IsGroup)
 	NotificationsAddSenderName(builder, senderNameOffset)
-	NotificationsAddSenderId(builder, t.SenderId)
 	NotificationsAddRoot(builder, rootOffset)
 	NotificationsAddSenderMediaId(builder, senderMediaIdOffset)
 	NotificationsAddGroupMediaId(builder, groupMediaIdOffset)
 	NotificationsAddTitle(builder, titleOffset)
 	NotificationsAddBody(builder, bodyOffset)
-	NotificationsAddIsGroup(builder, t.IsGroup)
+	NotificationsAddSenderId(builder, t.SenderId)
 	return NotificationsEnd(builder)
 }
 
 func (rcv *Notifications) UnPackTo(t *NotificationsT) {
+	t.IsGroup = rcv.IsGroup()
 	t.SenderName = string(rcv.SenderName())
-	t.SenderId = rcv.SenderId()
 	t.Root = string(rcv.Root())
 	t.SenderMediaId = string(rcv.SenderMediaId())
 	t.GroupMediaId = string(rcv.GroupMediaId())
 	t.Title = string(rcv.Title())
 	t.Body = string(rcv.Body())
-	t.IsGroup = rcv.IsGroup()
+	t.SenderId = rcv.SenderId()
 }
 
 func (rcv *Notifications) UnPack() *NotificationsT {
@@ -112,24 +112,24 @@ func (rcv *Notifications) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Notifications) SenderName() []byte {
+func (rcv *Notifications) IsGroup() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
+	}
+	return false
+}
+
+func (rcv *Notifications) MutateIsGroup(n bool) bool {
+	return rcv._tab.MutateBoolSlot(4, n)
+}
+
+func (rcv *Notifications) SenderName() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
 	return nil
-}
-
-func (rcv *Notifications) SenderId() uint64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
-	if o != 0 {
-		return rcv._tab.GetUint64(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Notifications) MutateSenderId(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(6, n)
 }
 
 func (rcv *Notifications) Root() []byte {
@@ -172,26 +172,26 @@ func (rcv *Notifications) Body() []byte {
 	return nil
 }
 
-func (rcv *Notifications) IsGroup() bool {
+func (rcv *Notifications) SenderId() uint64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
-		return rcv._tab.GetBool(o + rcv._tab.Pos)
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
-	return false
+	return 0
 }
 
-func (rcv *Notifications) MutateIsGroup(n bool) bool {
-	return rcv._tab.MutateBoolSlot(18, n)
+func (rcv *Notifications) MutateSenderId(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(18, n)
 }
 
 func NotificationsStart(builder *flatbuffers.Builder) {
 	builder.StartObject(8)
 }
-func NotificationsAddSenderName(builder *flatbuffers.Builder, senderName flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(senderName), 0)
+func NotificationsAddIsGroup(builder *flatbuffers.Builder, isGroup bool) {
+	builder.PrependBoolSlot(0, isGroup, false)
 }
-func NotificationsAddSenderId(builder *flatbuffers.Builder, senderId uint64) {
-	builder.PrependUint64Slot(1, senderId, 0)
+func NotificationsAddSenderName(builder *flatbuffers.Builder, senderName flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(senderName), 0)
 }
 func NotificationsAddRoot(builder *flatbuffers.Builder, root flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(root), 0)
@@ -208,8 +208,8 @@ func NotificationsAddTitle(builder *flatbuffers.Builder, title flatbuffers.UOffs
 func NotificationsAddBody(builder *flatbuffers.Builder, body flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(body), 0)
 }
-func NotificationsAddIsGroup(builder *flatbuffers.Builder, isGroup bool) {
-	builder.PrependBoolSlot(7, isGroup, false)
+func NotificationsAddSenderId(builder *flatbuffers.Builder, senderId uint64) {
+	builder.PrependUint64Slot(7, senderId, 0)
 }
 func NotificationsEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

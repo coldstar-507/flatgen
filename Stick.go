@@ -7,12 +7,12 @@ import (
 )
 
 type StickT struct {
+	Rotation float32 `json:"rotation"`
+	Scale float32 `json:"scale"`
 	MediaRef *MediaReferenceT `json:"media_ref"`
 	Emoji string `json:"emoji"`
 	Pos *OffsetT `json:"pos"`
 	InitSize *OffsetT `json:"init_size"`
-	Rotation float32 `json:"rotation"`
-	Scale float32 `json:"scale"`
 }
 
 func (t *StickT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -25,24 +25,24 @@ func (t *StickT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		emojiOffset = builder.CreateString(t.Emoji)
 	}
 	StickStart(builder)
+	StickAddRotation(builder, t.Rotation)
+	StickAddScale(builder, t.Scale)
 	StickAddMediaRef(builder, mediaRefOffset)
 	StickAddEmoji(builder, emojiOffset)
 	posOffset := t.Pos.Pack(builder)
 	StickAddPos(builder, posOffset)
 	initSizeOffset := t.InitSize.Pack(builder)
 	StickAddInitSize(builder, initSizeOffset)
-	StickAddRotation(builder, t.Rotation)
-	StickAddScale(builder, t.Scale)
 	return StickEnd(builder)
 }
 
 func (rcv *Stick) UnPackTo(t *StickT) {
+	t.Rotation = rcv.Rotation()
+	t.Scale = rcv.Scale()
 	t.MediaRef = rcv.MediaRef(nil).UnPack()
 	t.Emoji = string(rcv.Emoji())
 	t.Pos = rcv.Pos(nil).UnPack()
 	t.InitSize = rcv.InitSize(nil).UnPack()
-	t.Rotation = rcv.Rotation()
-	t.Scale = rcv.Scale()
 }
 
 func (rcv *Stick) UnPack() *StickT {
@@ -89,8 +89,32 @@ func (rcv *Stick) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Stick) MediaRef(obj *MediaReference) *MediaReference {
+func (rcv *Stick) Rotation() float32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
+	}
+	return 0.0
+}
+
+func (rcv *Stick) MutateRotation(n float32) bool {
+	return rcv._tab.MutateFloat32Slot(4, n)
+}
+
+func (rcv *Stick) Scale() float32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
+	}
+	return 0.0
+}
+
+func (rcv *Stick) MutateScale(n float32) bool {
+	return rcv._tab.MutateFloat32Slot(6, n)
+}
+
+func (rcv *Stick) MediaRef(obj *MediaReference) *MediaReference {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
@@ -103,7 +127,7 @@ func (rcv *Stick) MediaRef(obj *MediaReference) *MediaReference {
 }
 
 func (rcv *Stick) Emoji() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -111,7 +135,7 @@ func (rcv *Stick) Emoji() []byte {
 }
 
 func (rcv *Stick) Pos(obj *Offset) *Offset {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		x := o + rcv._tab.Pos
 		if obj == nil {
@@ -124,7 +148,7 @@ func (rcv *Stick) Pos(obj *Offset) *Offset {
 }
 
 func (rcv *Stick) InitSize(obj *Offset) *Offset {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		x := o + rcv._tab.Pos
 		if obj == nil {
@@ -136,50 +160,26 @@ func (rcv *Stick) InitSize(obj *Offset) *Offset {
 	return nil
 }
 
-func (rcv *Stick) Rotation() float32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
-	}
-	return 0.0
-}
-
-func (rcv *Stick) MutateRotation(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(12, n)
-}
-
-func (rcv *Stick) Scale() float32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
-	}
-	return 0.0
-}
-
-func (rcv *Stick) MutateScale(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(14, n)
-}
-
 func StickStart(builder *flatbuffers.Builder) {
 	builder.StartObject(6)
 }
-func StickAddMediaRef(builder *flatbuffers.Builder, mediaRef flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(mediaRef), 0)
-}
-func StickAddEmoji(builder *flatbuffers.Builder, emoji flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(emoji), 0)
-}
-func StickAddPos(builder *flatbuffers.Builder, pos flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(2, flatbuffers.UOffsetT(pos), 0)
-}
-func StickAddInitSize(builder *flatbuffers.Builder, initSize flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(3, flatbuffers.UOffsetT(initSize), 0)
-}
 func StickAddRotation(builder *flatbuffers.Builder, rotation float32) {
-	builder.PrependFloat32Slot(4, rotation, 0.0)
+	builder.PrependFloat32Slot(0, rotation, 0.0)
 }
 func StickAddScale(builder *flatbuffers.Builder, scale float32) {
-	builder.PrependFloat32Slot(5, scale, 0.0)
+	builder.PrependFloat32Slot(1, scale, 0.0)
+}
+func StickAddMediaRef(builder *flatbuffers.Builder, mediaRef flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(mediaRef), 0)
+}
+func StickAddEmoji(builder *flatbuffers.Builder, emoji flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(emoji), 0)
+}
+func StickAddPos(builder *flatbuffers.Builder, pos flatbuffers.UOffsetT) {
+	builder.PrependStructSlot(4, flatbuffers.UOffsetT(pos), 0)
+}
+func StickAddInitSize(builder *flatbuffers.Builder, initSize flatbuffers.UOffsetT) {
+	builder.PrependStructSlot(5, flatbuffers.UOffsetT(initSize), 0)
 }
 func StickEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -7,11 +7,11 @@ import (
 )
 
 type MediaReferenceT struct {
-	Prefix IdKind `json:"prefix"`
-	Timestamp int64 `json:"timestamp"`
-	RawId []byte `json:"raw_id"`
-	Cluster uint16 `json:"cluster"`
 	Perm bool `json:"perm"`
+	Prefix IdKind `json:"prefix"`
+	Cluster uint16 `json:"cluster"`
+	RawId []byte `json:"raw_id"`
+	Timestamp int64 `json:"timestamp"`
 }
 
 func (t *MediaReferenceT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -23,20 +23,20 @@ func (t *MediaReferenceT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffset
 		rawIdOffset = builder.CreateByteString(t.RawId)
 	}
 	MediaReferenceStart(builder)
-	MediaReferenceAddPrefix(builder, t.Prefix)
-	MediaReferenceAddTimestamp(builder, t.Timestamp)
-	MediaReferenceAddRawId(builder, rawIdOffset)
-	MediaReferenceAddCluster(builder, t.Cluster)
 	MediaReferenceAddPerm(builder, t.Perm)
+	MediaReferenceAddPrefix(builder, t.Prefix)
+	MediaReferenceAddCluster(builder, t.Cluster)
+	MediaReferenceAddRawId(builder, rawIdOffset)
+	MediaReferenceAddTimestamp(builder, t.Timestamp)
 	return MediaReferenceEnd(builder)
 }
 
 func (rcv *MediaReference) UnPackTo(t *MediaReferenceT) {
-	t.Prefix = rcv.Prefix()
-	t.Timestamp = rcv.Timestamp()
-	t.RawId = rcv.RawIdBytes()
-	t.Cluster = rcv.Cluster()
 	t.Perm = rcv.Perm()
+	t.Prefix = rcv.Prefix()
+	t.Cluster = rcv.Cluster()
+	t.RawId = rcv.RawIdBytes()
+	t.Timestamp = rcv.Timestamp()
 }
 
 func (rcv *MediaReference) UnPack() *MediaReferenceT {
@@ -83,8 +83,20 @@ func (rcv *MediaReference) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MediaReference) Prefix() IdKind {
+func (rcv *MediaReference) Perm() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
+	}
+	return false
+}
+
+func (rcv *MediaReference) MutatePerm(n bool) bool {
+	return rcv._tab.MutateBoolSlot(4, n)
+}
+
+func (rcv *MediaReference) Prefix() IdKind {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return IdKind(rcv._tab.GetByte(o + rcv._tab.Pos))
 	}
@@ -92,23 +104,23 @@ func (rcv *MediaReference) Prefix() IdKind {
 }
 
 func (rcv *MediaReference) MutatePrefix(n IdKind) bool {
-	return rcv._tab.MutateByteSlot(4, byte(n))
+	return rcv._tab.MutateByteSlot(6, byte(n))
 }
 
-func (rcv *MediaReference) Timestamp() int64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+func (rcv *MediaReference) Cluster() uint16 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *MediaReference) MutateTimestamp(n int64) bool {
-	return rcv._tab.MutateInt64Slot(6, n)
+func (rcv *MediaReference) MutateCluster(n uint16) bool {
+	return rcv._tab.MutateUint16Slot(8, n)
 }
 
 func (rcv *MediaReference) RawId(j int) byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
@@ -117,7 +129,7 @@ func (rcv *MediaReference) RawId(j int) byte {
 }
 
 func (rcv *MediaReference) RawIdLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -125,7 +137,7 @@ func (rcv *MediaReference) RawIdLength() int {
 }
 
 func (rcv *MediaReference) RawIdBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -133,7 +145,7 @@ func (rcv *MediaReference) RawIdBytes() []byte {
 }
 
 func (rcv *MediaReference) MutateRawId(j int, n byte) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
@@ -141,50 +153,38 @@ func (rcv *MediaReference) MutateRawId(j int, n byte) bool {
 	return false
 }
 
-func (rcv *MediaReference) Cluster() uint16 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+func (rcv *MediaReference) Timestamp() int64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
-		return rcv._tab.GetUint16(o + rcv._tab.Pos)
+		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *MediaReference) MutateCluster(n uint16) bool {
-	return rcv._tab.MutateUint16Slot(10, n)
-}
-
-func (rcv *MediaReference) Perm() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetBool(o + rcv._tab.Pos)
-	}
-	return false
-}
-
-func (rcv *MediaReference) MutatePerm(n bool) bool {
-	return rcv._tab.MutateBoolSlot(12, n)
+func (rcv *MediaReference) MutateTimestamp(n int64) bool {
+	return rcv._tab.MutateInt64Slot(12, n)
 }
 
 func MediaReferenceStart(builder *flatbuffers.Builder) {
 	builder.StartObject(5)
 }
-func MediaReferenceAddPrefix(builder *flatbuffers.Builder, prefix IdKind) {
-	builder.PrependByteSlot(0, byte(prefix), 0)
+func MediaReferenceAddPerm(builder *flatbuffers.Builder, perm bool) {
+	builder.PrependBoolSlot(0, perm, false)
 }
-func MediaReferenceAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
-	builder.PrependInt64Slot(1, timestamp, 0)
+func MediaReferenceAddPrefix(builder *flatbuffers.Builder, prefix IdKind) {
+	builder.PrependByteSlot(1, byte(prefix), 0)
+}
+func MediaReferenceAddCluster(builder *flatbuffers.Builder, cluster uint16) {
+	builder.PrependUint16Slot(2, cluster, 0)
 }
 func MediaReferenceAddRawId(builder *flatbuffers.Builder, rawId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(rawId), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(rawId), 0)
 }
 func MediaReferenceStartRawIdVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func MediaReferenceAddCluster(builder *flatbuffers.Builder, cluster uint16) {
-	builder.PrependUint16Slot(3, cluster, 0)
-}
-func MediaReferenceAddPerm(builder *flatbuffers.Builder, perm bool) {
-	builder.PrependBoolSlot(4, perm, false)
+func MediaReferenceAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
+	builder.PrependInt64Slot(4, timestamp, 0)
 }
 func MediaReferenceEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -7,13 +7,13 @@ import (
 )
 
 type BoostQueryT struct {
+	MaxAge byte `json:"max_age"`
+	MinAge byte `json:"min_age"`
 	Areas []*AreaT `json:"areas"`
 	Genders []string `json:"genders"`
 	Interests []string `json:"interests"`
-	Lim uint64 `json:"lim"`
-	MaxAge byte `json:"max_age"`
-	MinAge byte `json:"min_age"`
 	Countries []string `json:"countries"`
+	Lim uint64 `json:"lim"`
 }
 
 func (t *BoostQueryT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -73,17 +73,19 @@ func (t *BoostQueryT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		countriesOffset = builder.EndVector(countriesLength)
 	}
 	BoostQueryStart(builder)
+	BoostQueryAddMaxAge(builder, t.MaxAge)
+	BoostQueryAddMinAge(builder, t.MinAge)
 	BoostQueryAddAreas(builder, areasOffset)
 	BoostQueryAddGenders(builder, gendersOffset)
 	BoostQueryAddInterests(builder, interestsOffset)
-	BoostQueryAddLim(builder, t.Lim)
-	BoostQueryAddMaxAge(builder, t.MaxAge)
-	BoostQueryAddMinAge(builder, t.MinAge)
 	BoostQueryAddCountries(builder, countriesOffset)
+	BoostQueryAddLim(builder, t.Lim)
 	return BoostQueryEnd(builder)
 }
 
 func (rcv *BoostQuery) UnPackTo(t *BoostQueryT) {
+	t.MaxAge = rcv.MaxAge()
+	t.MinAge = rcv.MinAge()
 	areasLength := rcv.AreasLength()
 	t.Areas = make([]*AreaT, areasLength)
 	for j := 0; j < areasLength; j++ {
@@ -101,14 +103,12 @@ func (rcv *BoostQuery) UnPackTo(t *BoostQueryT) {
 	for j := 0; j < interestsLength; j++ {
 		t.Interests[j] = string(rcv.Interests(j))
 	}
-	t.Lim = rcv.Lim()
-	t.MaxAge = rcv.MaxAge()
-	t.MinAge = rcv.MinAge()
 	countriesLength := rcv.CountriesLength()
 	t.Countries = make([]string, countriesLength)
 	for j := 0; j < countriesLength; j++ {
 		t.Countries[j] = string(rcv.Countries(j))
 	}
+	t.Lim = rcv.Lim()
 }
 
 func (rcv *BoostQuery) UnPack() *BoostQueryT {
@@ -155,8 +155,32 @@ func (rcv *BoostQuery) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *BoostQuery) Areas(obj *Area, j int) bool {
+func (rcv *BoostQuery) MaxAge() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetByte(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *BoostQuery) MutateMaxAge(n byte) bool {
+	return rcv._tab.MutateByteSlot(4, n)
+}
+
+func (rcv *BoostQuery) MinAge() byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.GetByte(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *BoostQuery) MutateMinAge(n byte) bool {
+	return rcv._tab.MutateByteSlot(6, n)
+}
+
+func (rcv *BoostQuery) Areas(obj *Area, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -168,7 +192,7 @@ func (rcv *BoostQuery) Areas(obj *Area, j int) bool {
 }
 
 func (rcv *BoostQuery) AreasLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -176,7 +200,7 @@ func (rcv *BoostQuery) AreasLength() int {
 }
 
 func (rcv *BoostQuery) Genders(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -185,7 +209,7 @@ func (rcv *BoostQuery) Genders(j int) []byte {
 }
 
 func (rcv *BoostQuery) GendersLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -193,7 +217,7 @@ func (rcv *BoostQuery) GendersLength() int {
 }
 
 func (rcv *BoostQuery) Interests(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -202,51 +226,15 @@ func (rcv *BoostQuery) Interests(j int) []byte {
 }
 
 func (rcv *BoostQuery) InterestsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
 	return 0
 }
 
-func (rcv *BoostQuery) Lim() uint64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
-	if o != 0 {
-		return rcv._tab.GetUint64(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *BoostQuery) MutateLim(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(10, n)
-}
-
-func (rcv *BoostQuery) MaxAge() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *BoostQuery) MutateMaxAge(n byte) bool {
-	return rcv._tab.MutateByteSlot(12, n)
-}
-
-func (rcv *BoostQuery) MinAge() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *BoostQuery) MutateMinAge(n byte) bool {
-	return rcv._tab.MutateByteSlot(14, n)
-}
-
 func (rcv *BoostQuery) Countries(j int) []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
@@ -255,48 +243,60 @@ func (rcv *BoostQuery) Countries(j int) []byte {
 }
 
 func (rcv *BoostQuery) CountriesLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
 	return 0
 }
 
+func (rcv *BoostQuery) Lim() uint64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *BoostQuery) MutateLim(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(16, n)
+}
+
 func BoostQueryStart(builder *flatbuffers.Builder) {
 	builder.StartObject(7)
 }
+func BoostQueryAddMaxAge(builder *flatbuffers.Builder, maxAge byte) {
+	builder.PrependByteSlot(0, maxAge, 0)
+}
+func BoostQueryAddMinAge(builder *flatbuffers.Builder, minAge byte) {
+	builder.PrependByteSlot(1, minAge, 0)
+}
 func BoostQueryAddAreas(builder *flatbuffers.Builder, areas flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(areas), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(areas), 0)
 }
 func BoostQueryStartAreasVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func BoostQueryAddGenders(builder *flatbuffers.Builder, genders flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(genders), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(genders), 0)
 }
 func BoostQueryStartGendersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func BoostQueryAddInterests(builder *flatbuffers.Builder, interests flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(interests), 0)
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(interests), 0)
 }
 func BoostQueryStartInterestsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func BoostQueryAddLim(builder *flatbuffers.Builder, lim uint64) {
-	builder.PrependUint64Slot(3, lim, 0)
-}
-func BoostQueryAddMaxAge(builder *flatbuffers.Builder, maxAge byte) {
-	builder.PrependByteSlot(4, maxAge, 0)
-}
-func BoostQueryAddMinAge(builder *flatbuffers.Builder, minAge byte) {
-	builder.PrependByteSlot(5, minAge, 0)
-}
 func BoostQueryAddCountries(builder *flatbuffers.Builder, countries flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(countries), 0)
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(countries), 0)
 }
 func BoostQueryStartCountriesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func BoostQueryAddLim(builder *flatbuffers.Builder, lim uint64) {
+	builder.PrependUint64Slot(6, lim, 0)
 }
 func BoostQueryEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

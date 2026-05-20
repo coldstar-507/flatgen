@@ -7,11 +7,11 @@ import (
 )
 
 type SniperT struct {
+	Pdy float32 `json:"pdy"`
 	MediaRef *MediaReferenceT `json:"media_ref"`
 	Sticks []*StickT `json:"sticks"`
 	Ps *OffsetT `json:"ps"`
 	Text string `json:"text"`
-	Pdy float32 `json:"pdy"`
 }
 
 func (t *SniperT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -37,16 +37,17 @@ func (t *SniperT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		textOffset = builder.CreateString(t.Text)
 	}
 	SniperStart(builder)
+	SniperAddPdy(builder, t.Pdy)
 	SniperAddMediaRef(builder, mediaRefOffset)
 	SniperAddSticks(builder, sticksOffset)
 	psOffset := t.Ps.Pack(builder)
 	SniperAddPs(builder, psOffset)
 	SniperAddText(builder, textOffset)
-	SniperAddPdy(builder, t.Pdy)
 	return SniperEnd(builder)
 }
 
 func (rcv *Sniper) UnPackTo(t *SniperT) {
+	t.Pdy = rcv.Pdy()
 	t.MediaRef = rcv.MediaRef(nil).UnPack()
 	sticksLength := rcv.SticksLength()
 	t.Sticks = make([]*StickT, sticksLength)
@@ -57,7 +58,6 @@ func (rcv *Sniper) UnPackTo(t *SniperT) {
 	}
 	t.Ps = rcv.Ps(nil).UnPack()
 	t.Text = string(rcv.Text())
-	t.Pdy = rcv.Pdy()
 }
 
 func (rcv *Sniper) UnPack() *SniperT {
@@ -104,8 +104,20 @@ func (rcv *Sniper) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Sniper) MediaRef(obj *MediaReference) *MediaReference {
+func (rcv *Sniper) Pdy() float32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
+	}
+	return 0.0
+}
+
+func (rcv *Sniper) MutatePdy(n float32) bool {
+	return rcv._tab.MutateFloat32Slot(4, n)
+}
+
+func (rcv *Sniper) MediaRef(obj *MediaReference) *MediaReference {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
@@ -118,7 +130,7 @@ func (rcv *Sniper) MediaRef(obj *MediaReference) *MediaReference {
 }
 
 func (rcv *Sniper) Sticks(obj *Stick, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -130,7 +142,7 @@ func (rcv *Sniper) Sticks(obj *Stick, j int) bool {
 }
 
 func (rcv *Sniper) SticksLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -138,7 +150,7 @@ func (rcv *Sniper) SticksLength() int {
 }
 
 func (rcv *Sniper) Ps(obj *Offset) *Offset {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := o + rcv._tab.Pos
 		if obj == nil {
@@ -151,45 +163,33 @@ func (rcv *Sniper) Ps(obj *Offset) *Offset {
 }
 
 func (rcv *Sniper) Text() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
 	return nil
 }
 
-func (rcv *Sniper) Pdy() float32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
-	}
-	return 0.0
-}
-
-func (rcv *Sniper) MutatePdy(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(12, n)
-}
-
 func SniperStart(builder *flatbuffers.Builder) {
 	builder.StartObject(5)
 }
+func SniperAddPdy(builder *flatbuffers.Builder, pdy float32) {
+	builder.PrependFloat32Slot(0, pdy, 0.0)
+}
 func SniperAddMediaRef(builder *flatbuffers.Builder, mediaRef flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(mediaRef), 0)
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(mediaRef), 0)
 }
 func SniperAddSticks(builder *flatbuffers.Builder, sticks flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(sticks), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(sticks), 0)
 }
 func SniperStartSticksVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func SniperAddPs(builder *flatbuffers.Builder, ps flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(2, flatbuffers.UOffsetT(ps), 0)
+	builder.PrependStructSlot(3, flatbuffers.UOffsetT(ps), 0)
 }
 func SniperAddText(builder *flatbuffers.Builder, text flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(text), 0)
-}
-func SniperAddPdy(builder *flatbuffers.Builder, pdy float32) {
-	builder.PrependFloat32Slot(4, pdy, 0.0)
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(text), 0)
 }
 func SniperEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

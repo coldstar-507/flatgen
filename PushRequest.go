@@ -7,10 +7,10 @@ import (
 )
 
 type PushRequestT struct {
-	NodeId uint64 `json:"node_id"`
-	Dev uint32 `json:"dev"`
 	Type byte `json:"type"`
+	Dev uint32 `json:"dev"`
 	Payload []byte `json:"payload"`
+	NodeId uint64 `json:"node_id"`
 }
 
 func (t *PushRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -22,18 +22,18 @@ func (t *PushRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		payloadOffset = builder.CreateByteString(t.Payload)
 	}
 	PushRequestStart(builder)
-	PushRequestAddNodeId(builder, t.NodeId)
-	PushRequestAddDev(builder, t.Dev)
 	PushRequestAddType(builder, t.Type)
+	PushRequestAddDev(builder, t.Dev)
 	PushRequestAddPayload(builder, payloadOffset)
+	PushRequestAddNodeId(builder, t.NodeId)
 	return PushRequestEnd(builder)
 }
 
 func (rcv *PushRequest) UnPackTo(t *PushRequestT) {
-	t.NodeId = rcv.NodeId()
-	t.Dev = rcv.Dev()
 	t.Type = rcv.Type()
+	t.Dev = rcv.Dev()
 	t.Payload = rcv.PayloadBytes()
+	t.NodeId = rcv.NodeId()
 }
 
 func (rcv *PushRequest) UnPack() *PushRequestT {
@@ -80,16 +80,16 @@ func (rcv *PushRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *PushRequest) NodeId() uint64 {
+func (rcv *PushRequest) Type() byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+		return rcv._tab.GetByte(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *PushRequest) MutateNodeId(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(4, n)
+func (rcv *PushRequest) MutateType(n byte) bool {
+	return rcv._tab.MutateByteSlot(4, n)
 }
 
 func (rcv *PushRequest) Dev() uint32 {
@@ -104,20 +104,8 @@ func (rcv *PushRequest) MutateDev(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(6, n)
 }
 
-func (rcv *PushRequest) Type() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *PushRequest) MutateType(n byte) bool {
-	return rcv._tab.MutateByteSlot(8, n)
-}
-
 func (rcv *PushRequest) Payload(j int) byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
@@ -126,7 +114,7 @@ func (rcv *PushRequest) Payload(j int) byte {
 }
 
 func (rcv *PushRequest) PayloadLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -134,7 +122,7 @@ func (rcv *PushRequest) PayloadLength() int {
 }
 
 func (rcv *PushRequest) PayloadBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -142,7 +130,7 @@ func (rcv *PushRequest) PayloadBytes() []byte {
 }
 
 func (rcv *PushRequest) MutatePayload(j int, n byte) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
@@ -150,23 +138,35 @@ func (rcv *PushRequest) MutatePayload(j int, n byte) bool {
 	return false
 }
 
+func (rcv *PushRequest) NodeId() uint64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *PushRequest) MutateNodeId(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(10, n)
+}
+
 func PushRequestStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
-func PushRequestAddNodeId(builder *flatbuffers.Builder, nodeId uint64) {
-	builder.PrependUint64Slot(0, nodeId, 0)
+func PushRequestAddType(builder *flatbuffers.Builder, type_ byte) {
+	builder.PrependByteSlot(0, type_, 0)
 }
 func PushRequestAddDev(builder *flatbuffers.Builder, dev uint32) {
 	builder.PrependUint32Slot(1, dev, 0)
 }
-func PushRequestAddType(builder *flatbuffers.Builder, type_ byte) {
-	builder.PrependByteSlot(2, type_, 0)
-}
 func PushRequestAddPayload(builder *flatbuffers.Builder, payload flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(payload), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(payload), 0)
 }
 func PushRequestStartPayloadVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
+}
+func PushRequestAddNodeId(builder *flatbuffers.Builder, nodeId uint64) {
+	builder.PrependUint64Slot(3, nodeId, 0)
 }
 func PushRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

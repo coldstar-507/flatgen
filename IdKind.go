@@ -7,8 +7,8 @@ import "strconv"
 type IdKind byte
 
 const (
-	IdKindMessage2     IdKind = 0
-	IdKindRoom2        IdKind = 1
+	IdKindMessage      IdKind = 0
+	IdKindRoom         IdKind = 1
 	IdKindMedia        IdKind = 2
 	IdKindMediaRef     IdKind = 3
 	IdKindIddev        IdKind = 4
@@ -32,8 +32,8 @@ const (
 )
 
 var EnumNamesIdKind = map[IdKind]string{
-	IdKindMessage2:     "Message2",
-	IdKindRoom2:        "Room2",
+	IdKindMessage:      "Message",
+	IdKindRoom:         "Room",
 	IdKindMedia:        "Media",
 	IdKindMediaRef:     "MediaRef",
 	IdKindIddev:        "Iddev",
@@ -57,8 +57,8 @@ var EnumNamesIdKind = map[IdKind]string{
 }
 
 var EnumValuesIdKind = map[string]IdKind{
-	"Message2":     IdKindMessage2,
-	"Room2":        IdKindRoom2,
+	"Message":      IdKindMessage,
+	"Room":         IdKindRoom,
 	"Media":        IdKindMedia,
 	"MediaRef":     IdKindMediaRef,
 	"Iddev":        IdKindIddev,

@@ -7,9 +7,9 @@ import (
 )
 
 type MediaMetadataT struct {
+	HasData bool `json:"has_data"`
 	Reference *MediaReferenceT `json:"reference"`
 	Metadata []byte `json:"metadata"`
-	HasData bool `json:"has_data"`
 }
 
 func (t *MediaMetadataT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -22,16 +22,16 @@ func (t *MediaMetadataT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT
 		metadataOffset = builder.CreateByteString(t.Metadata)
 	}
 	MediaMetadataStart(builder)
+	MediaMetadataAddHasData(builder, t.HasData)
 	MediaMetadataAddReference(builder, referenceOffset)
 	MediaMetadataAddMetadata(builder, metadataOffset)
-	MediaMetadataAddHasData(builder, t.HasData)
 	return MediaMetadataEnd(builder)
 }
 
 func (rcv *MediaMetadata) UnPackTo(t *MediaMetadataT) {
+	t.HasData = rcv.HasData()
 	t.Reference = rcv.Reference(nil).UnPack()
 	t.Metadata = rcv.MetadataBytes()
-	t.HasData = rcv.HasData()
 }
 
 func (rcv *MediaMetadata) UnPack() *MediaMetadataT {
@@ -78,8 +78,20 @@ func (rcv *MediaMetadata) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *MediaMetadata) Reference(obj *MediaReference) *MediaReference {
+func (rcv *MediaMetadata) HasData() bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
+	}
+	return false
+}
+
+func (rcv *MediaMetadata) MutateHasData(n bool) bool {
+	return rcv._tab.MutateBoolSlot(4, n)
+}
+
+func (rcv *MediaMetadata) Reference(obj *MediaReference) *MediaReference {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
@@ -92,7 +104,7 @@ func (rcv *MediaMetadata) Reference(obj *MediaReference) *MediaReference {
 }
 
 func (rcv *MediaMetadata) Metadata(j int) byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
@@ -101,7 +113,7 @@ func (rcv *MediaMetadata) Metadata(j int) byte {
 }
 
 func (rcv *MediaMetadata) MetadataLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -109,7 +121,7 @@ func (rcv *MediaMetadata) MetadataLength() int {
 }
 
 func (rcv *MediaMetadata) MetadataBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -117,7 +129,7 @@ func (rcv *MediaMetadata) MetadataBytes() []byte {
 }
 
 func (rcv *MediaMetadata) MutateMetadata(j int, n byte) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
@@ -125,32 +137,20 @@ func (rcv *MediaMetadata) MutateMetadata(j int, n byte) bool {
 	return false
 }
 
-func (rcv *MediaMetadata) HasData() bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		return rcv._tab.GetBool(o + rcv._tab.Pos)
-	}
-	return false
-}
-
-func (rcv *MediaMetadata) MutateHasData(n bool) bool {
-	return rcv._tab.MutateBoolSlot(8, n)
-}
-
 func MediaMetadataStart(builder *flatbuffers.Builder) {
 	builder.StartObject(3)
 }
+func MediaMetadataAddHasData(builder *flatbuffers.Builder, hasData bool) {
+	builder.PrependBoolSlot(0, hasData, false)
+}
 func MediaMetadataAddReference(builder *flatbuffers.Builder, reference flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(reference), 0)
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(reference), 0)
 }
 func MediaMetadataAddMetadata(builder *flatbuffers.Builder, metadata flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(metadata), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(metadata), 0)
 }
 func MediaMetadataStartMetadataVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
-}
-func MediaMetadataAddHasData(builder *flatbuffers.Builder, hasData bool) {
-	builder.PrependBoolSlot(2, hasData, false)
 }
 func MediaMetadataEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
