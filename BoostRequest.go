@@ -10,8 +10,6 @@ type BoostRequestT struct {
 	SenderCreationCluster uint16 `json:"sender_creation_cluster"`
 	DeviceId uint32 `json:"device_id"`
 	SatsPerPerson uint32 `json:"sats_per_person"`
-	JobId string `json:"job_id"`
-	RequestClusterName string `json:"request_cluster_name"`
 	Token string `json:"token"`
 	SenderPublicKey []byte `json:"sender_public_key"`
 	Query *BoostQueryT `json:"query"`
@@ -27,14 +25,6 @@ type BoostRequestT struct {
 func (t *BoostRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	if t == nil {
 		return 0
-	}
-	jobIdOffset := flatbuffers.UOffsetT(0)
-	if t.JobId != "" {
-		jobIdOffset = builder.CreateString(t.JobId)
-	}
-	requestClusterNameOffset := flatbuffers.UOffsetT(0)
-	if t.RequestClusterName != "" {
-		requestClusterNameOffset = builder.CreateString(t.RequestClusterName)
 	}
 	tokenOffset := flatbuffers.UOffsetT(0)
 	if t.Token != "" {
@@ -66,8 +56,6 @@ func (t *BoostRequestT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT 
 	BoostRequestAddSenderCreationCluster(builder, t.SenderCreationCluster)
 	BoostRequestAddDeviceId(builder, t.DeviceId)
 	BoostRequestAddSatsPerPerson(builder, t.SatsPerPerson)
-	BoostRequestAddJobId(builder, jobIdOffset)
-	BoostRequestAddRequestClusterName(builder, requestClusterNameOffset)
 	BoostRequestAddToken(builder, tokenOffset)
 	BoostRequestAddSenderPublicKey(builder, senderPublicKeyOffset)
 	BoostRequestAddQuery(builder, queryOffset)
@@ -85,8 +73,6 @@ func (rcv *BoostRequest) UnPackTo(t *BoostRequestT) {
 	t.SenderCreationCluster = rcv.SenderCreationCluster()
 	t.DeviceId = rcv.DeviceId()
 	t.SatsPerPerson = rcv.SatsPerPerson()
-	t.JobId = string(rcv.JobId())
-	t.RequestClusterName = string(rcv.RequestClusterName())
 	t.Token = string(rcv.Token())
 	t.SenderPublicKey = rcv.SenderPublicKeyBytes()
 	t.Query = rcv.Query(nil).UnPack()
@@ -185,7 +171,7 @@ func (rcv *BoostRequest) MutateSatsPerPerson(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(8, n)
 }
 
-func (rcv *BoostRequest) JobId() []byte {
+func (rcv *BoostRequest) Token() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -193,24 +179,8 @@ func (rcv *BoostRequest) JobId() []byte {
 	return nil
 }
 
-func (rcv *BoostRequest) RequestClusterName() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func (rcv *BoostRequest) Token() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
 func (rcv *BoostRequest) SenderPublicKey(j int) byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
@@ -219,7 +189,7 @@ func (rcv *BoostRequest) SenderPublicKey(j int) byte {
 }
 
 func (rcv *BoostRequest) SenderPublicKeyLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -227,7 +197,7 @@ func (rcv *BoostRequest) SenderPublicKeyLength() int {
 }
 
 func (rcv *BoostRequest) SenderPublicKeyBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -235,7 +205,7 @@ func (rcv *BoostRequest) SenderPublicKeyBytes() []byte {
 }
 
 func (rcv *BoostRequest) MutateSenderPublicKey(j int, n byte) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
@@ -244,7 +214,7 @@ func (rcv *BoostRequest) MutateSenderPublicKey(j int, n byte) bool {
 }
 
 func (rcv *BoostRequest) Query(obj *BoostQuery) *BoostQuery {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
@@ -257,7 +227,7 @@ func (rcv *BoostRequest) Query(obj *BoostQuery) *BoostQuery {
 }
 
 func (rcv *BoostRequest) MessageId(j int) byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
@@ -266,7 +236,7 @@ func (rcv *BoostRequest) MessageId(j int) byte {
 }
 
 func (rcv *BoostRequest) MessageIdLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -274,7 +244,7 @@ func (rcv *BoostRequest) MessageIdLength() int {
 }
 
 func (rcv *BoostRequest) MessageIdBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -282,7 +252,7 @@ func (rcv *BoostRequest) MessageIdBytes() []byte {
 }
 
 func (rcv *BoostRequest) MutateMessageId(j int, n byte) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
@@ -291,7 +261,7 @@ func (rcv *BoostRequest) MutateMessageId(j int, n byte) bool {
 }
 
 func (rcv *BoostRequest) PartialTxs(obj *PartialTx, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -303,7 +273,7 @@ func (rcv *BoostRequest) PartialTxs(obj *PartialTx, j int) bool {
 }
 
 func (rcv *BoostRequest) PartialTxsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -311,7 +281,7 @@ func (rcv *BoostRequest) PartialTxsLength() int {
 }
 
 func (rcv *BoostRequest) RequestTime() int64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
 		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
@@ -319,11 +289,11 @@ func (rcv *BoostRequest) RequestTime() int64 {
 }
 
 func (rcv *BoostRequest) MutateRequestTime(n int64) bool {
-	return rcv._tab.MutateInt64Slot(24, n)
+	return rcv._tab.MutateInt64Slot(20, n)
 }
 
 func (rcv *BoostRequest) SenderId() uint64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
 	if o != 0 {
 		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
@@ -331,11 +301,11 @@ func (rcv *BoostRequest) SenderId() uint64 {
 }
 
 func (rcv *BoostRequest) MutateSenderId(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(26, n)
+	return rcv._tab.MutateUint64Slot(22, n)
 }
 
 func (rcv *BoostRequest) InputSats() uint64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
 	if o != 0 {
 		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
@@ -343,11 +313,11 @@ func (rcv *BoostRequest) InputSats() uint64 {
 }
 
 func (rcv *BoostRequest) MutateInputSats(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(28, n)
+	return rcv._tab.MutateUint64Slot(24, n)
 }
 
 func (rcv *BoostRequest) FeeSats() uint64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
 	if o != 0 {
 		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
@@ -355,11 +325,11 @@ func (rcv *BoostRequest) FeeSats() uint64 {
 }
 
 func (rcv *BoostRequest) MutateFeeSats(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(30, n)
+	return rcv._tab.MutateUint64Slot(26, n)
 }
 
 func (rcv *BoostRequest) FeeBytes() uint64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
 	if o != 0 {
 		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
@@ -367,11 +337,11 @@ func (rcv *BoostRequest) FeeBytes() uint64 {
 }
 
 func (rcv *BoostRequest) MutateFeeBytes(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(32, n)
+	return rcv._tab.MutateUint64Slot(28, n)
 }
 
 func BoostRequestStart(builder *flatbuffers.Builder) {
-	builder.StartObject(15)
+	builder.StartObject(13)
 }
 func BoostRequestAddSenderCreationCluster(builder *flatbuffers.Builder, senderCreationCluster uint16) {
 	builder.PrependUint16Slot(0, senderCreationCluster, 0)
@@ -382,50 +352,44 @@ func BoostRequestAddDeviceId(builder *flatbuffers.Builder, deviceId uint32) {
 func BoostRequestAddSatsPerPerson(builder *flatbuffers.Builder, satsPerPerson uint32) {
 	builder.PrependUint32Slot(2, satsPerPerson, 0)
 }
-func BoostRequestAddJobId(builder *flatbuffers.Builder, jobId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(jobId), 0)
-}
-func BoostRequestAddRequestClusterName(builder *flatbuffers.Builder, requestClusterName flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(requestClusterName), 0)
-}
 func BoostRequestAddToken(builder *flatbuffers.Builder, token flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(token), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(token), 0)
 }
 func BoostRequestAddSenderPublicKey(builder *flatbuffers.Builder, senderPublicKey flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(senderPublicKey), 0)
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(senderPublicKey), 0)
 }
 func BoostRequestStartSenderPublicKeyVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
 func BoostRequestAddQuery(builder *flatbuffers.Builder, query flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(query), 0)
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(query), 0)
 }
 func BoostRequestAddMessageId(builder *flatbuffers.Builder, messageId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(messageId), 0)
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(messageId), 0)
 }
 func BoostRequestStartMessageIdVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
 func BoostRequestAddPartialTxs(builder *flatbuffers.Builder, partialTxs flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(9, flatbuffers.UOffsetT(partialTxs), 0)
+	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(partialTxs), 0)
 }
 func BoostRequestStartPartialTxsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func BoostRequestAddRequestTime(builder *flatbuffers.Builder, requestTime int64) {
-	builder.PrependInt64Slot(10, requestTime, 0)
+	builder.PrependInt64Slot(8, requestTime, 0)
 }
 func BoostRequestAddSenderId(builder *flatbuffers.Builder, senderId uint64) {
-	builder.PrependUint64Slot(11, senderId, 0)
+	builder.PrependUint64Slot(9, senderId, 0)
 }
 func BoostRequestAddInputSats(builder *flatbuffers.Builder, inputSats uint64) {
-	builder.PrependUint64Slot(12, inputSats, 0)
+	builder.PrependUint64Slot(10, inputSats, 0)
 }
 func BoostRequestAddFeeSats(builder *flatbuffers.Builder, feeSats uint64) {
-	builder.PrependUint64Slot(13, feeSats, 0)
+	builder.PrependUint64Slot(11, feeSats, 0)
 }
 func BoostRequestAddFeeBytes(builder *flatbuffers.Builder, feeBytes uint64) {
-	builder.PrependUint64Slot(14, feeBytes, 0)
+	builder.PrependUint64Slot(12, feeBytes, 0)
 }
 func BoostRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
