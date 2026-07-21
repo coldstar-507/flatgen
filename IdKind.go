@@ -29,6 +29,7 @@ const (
 	IdKindFunding      IdKind = 19
 	IdKindBoosting     IdKind = 20
 	IdKindNaivePayment IdKind = 21
+	IdKindStickerRef   IdKind = 22
 )
 
 var EnumNamesIdKind = map[IdKind]string{
@@ -54,6 +55,7 @@ var EnumNamesIdKind = map[IdKind]string{
 	IdKindFunding:      "Funding",
 	IdKindBoosting:     "Boosting",
 	IdKindNaivePayment: "NaivePayment",
+	IdKindStickerRef:   "StickerRef",
 }
 
 var EnumValuesIdKind = map[string]IdKind{
@@ -79,6 +81,7 @@ var EnumValuesIdKind = map[string]IdKind{
 	"Funding":      IdKindFunding,
 	"Boosting":     IdKindBoosting,
 	"NaivePayment": IdKindNaivePayment,
+	"StickerRef":   IdKindStickerRef,
 }
 
 func (v IdKind) String() string {
