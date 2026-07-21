@@ -12,6 +12,7 @@ type MediaReferenceT struct {
 	Cluster uint16 `json:"cluster"`
 	RawId []byte `json:"raw_id"`
 	Timestamp int64 `json:"timestamp"`
+	Group uint64 `json:"group"`
 }
 
 func (t *MediaReferenceT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -28,6 +29,7 @@ func (t *MediaReferenceT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffset
 	MediaReferenceAddCluster(builder, t.Cluster)
 	MediaReferenceAddRawId(builder, rawIdOffset)
 	MediaReferenceAddTimestamp(builder, t.Timestamp)
+	MediaReferenceAddGroup(builder, t.Group)
 	return MediaReferenceEnd(builder)
 }
 
@@ -37,6 +39,7 @@ func (rcv *MediaReference) UnPackTo(t *MediaReferenceT) {
 	t.Cluster = rcv.Cluster()
 	t.RawId = rcv.RawIdBytes()
 	t.Timestamp = rcv.Timestamp()
+	t.Group = rcv.Group()
 }
 
 func (rcv *MediaReference) UnPack() *MediaReferenceT {
@@ -165,8 +168,20 @@ func (rcv *MediaReference) MutateTimestamp(n int64) bool {
 	return rcv._tab.MutateInt64Slot(12, n)
 }
 
+func (rcv *MediaReference) Group() uint64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
+	if o != 0 {
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *MediaReference) MutateGroup(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(14, n)
+}
+
 func MediaReferenceStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
+	builder.StartObject(6)
 }
 func MediaReferenceAddPerm(builder *flatbuffers.Builder, perm bool) {
 	builder.PrependBoolSlot(0, perm, false)
@@ -185,6 +200,9 @@ func MediaReferenceStartRawIdVector(builder *flatbuffers.Builder, numElems int) 
 }
 func MediaReferenceAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 	builder.PrependInt64Slot(4, timestamp, 0)
+}
+func MediaReferenceAddGroup(builder *flatbuffers.Builder, group uint64) {
+	builder.PrependUint64Slot(5, group, 0)
 }
 func MediaReferenceEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
