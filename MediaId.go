@@ -8,6 +8,7 @@ import (
 
 type MediaIdT struct {
 	Prefix IdKind `json:"prefix"`
+	Pack uint64 `json:"pack"`
 	Timestamp int64 `json:"timestamp"`
 	U32 uint32 `json:"u32"`
 	AspectRatio float32 `json:"aspect_ratio"`
@@ -20,6 +21,7 @@ func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	}
 	MediaIdStart(builder)
 	MediaIdAddPrefix(builder, t.Prefix)
+	MediaIdAddPack(builder, t.Pack)
 	MediaIdAddTimestamp(builder, t.Timestamp)
 	MediaIdAddU32(builder, t.U32)
 	MediaIdAddAspectRatio(builder, t.AspectRatio)
@@ -29,6 +31,7 @@ func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 
 func (rcv *MediaId) UnPackTo(t *MediaIdT) {
 	t.Prefix = rcv.Prefix()
+	t.Pack = rcv.Pack()
 	t.Timestamp = rcv.Timestamp()
 	t.U32 = rcv.U32()
 	t.AspectRatio = rcv.AspectRatio()
@@ -91,8 +94,20 @@ func (rcv *MediaId) MutatePrefix(n IdKind) bool {
 	return rcv._tab.MutateByteSlot(4, byte(n))
 }
 
-func (rcv *MediaId) Timestamp() int64 {
+func (rcv *MediaId) Pack() uint64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *MediaId) MutatePack(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(6, n)
+}
+
+func (rcv *MediaId) Timestamp() int64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
@@ -100,11 +115,11 @@ func (rcv *MediaId) Timestamp() int64 {
 }
 
 func (rcv *MediaId) MutateTimestamp(n int64) bool {
-	return rcv._tab.MutateInt64Slot(6, n)
+	return rcv._tab.MutateInt64Slot(8, n)
 }
 
 func (rcv *MediaId) U32() uint32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.GetUint32(o + rcv._tab.Pos)
 	}
@@ -112,11 +127,11 @@ func (rcv *MediaId) U32() uint32 {
 }
 
 func (rcv *MediaId) MutateU32(n uint32) bool {
-	return rcv._tab.MutateUint32Slot(8, n)
+	return rcv._tab.MutateUint32Slot(10, n)
 }
 
 func (rcv *MediaId) AspectRatio() float32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
 	}
@@ -124,11 +139,11 @@ func (rcv *MediaId) AspectRatio() float32 {
 }
 
 func (rcv *MediaId) MutateAspectRatio(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(10, n)
+	return rcv._tab.MutateFloat32Slot(12, n)
 }
 
 func (rcv *MediaId) MediaType() uint16 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
@@ -136,26 +151,29 @@ func (rcv *MediaId) MediaType() uint16 {
 }
 
 func (rcv *MediaId) MutateMediaType(n uint16) bool {
-	return rcv._tab.MutateUint16Slot(12, n)
+	return rcv._tab.MutateUint16Slot(14, n)
 }
 
 func MediaIdStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
+	builder.StartObject(6)
 }
 func MediaIdAddPrefix(builder *flatbuffers.Builder, prefix IdKind) {
 	builder.PrependByteSlot(0, byte(prefix), 0)
 }
+func MediaIdAddPack(builder *flatbuffers.Builder, pack uint64) {
+	builder.PrependUint64Slot(1, pack, 0)
+}
 func MediaIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
-	builder.PrependInt64Slot(1, timestamp, 0)
+	builder.PrependInt64Slot(2, timestamp, 0)
 }
 func MediaIdAddU32(builder *flatbuffers.Builder, u32 uint32) {
-	builder.PrependUint32Slot(2, u32, 0)
+	builder.PrependUint32Slot(3, u32, 0)
 }
 func MediaIdAddAspectRatio(builder *flatbuffers.Builder, aspectRatio float32) {
-	builder.PrependFloat32Slot(3, aspectRatio, 0.0)
+	builder.PrependFloat32Slot(4, aspectRatio, 0.0)
 }
 func MediaIdAddMediaType(builder *flatbuffers.Builder, mediaType uint16) {
-	builder.PrependUint16Slot(4, mediaType, 0)
+	builder.PrependUint16Slot(5, mediaType, 0)
 }
 func MediaIdEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

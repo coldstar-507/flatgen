@@ -12,24 +12,22 @@ const (
 	IdKindMedia        IdKind = 2
 	IdKindMediaRef     IdKind = 3
 	IdKindIddev        IdKind = 4
-	IdKindSticker      IdKind = 5
-	IdKindBoost        IdKind = 6
-	IdKindPaymentRef   IdKind = 7
-	IdKindPayment      IdKind = 8
-	IdKindTxout        IdKind = 9
-	IdKindTxin         IdKind = 10
-	IdKindStatic       IdKind = 11
-	IdKindTxid         IdKind = 12
-	IdKindHex          IdKind = 13
-	IdKindTimestamp    IdKind = 14
-	IdKindVersionstamp IdKind = 15
-	IdKindStrings      IdKind = 16
-	IdKindThumbnail    IdKind = 17
-	IdKindAccess       IdKind = 18
-	IdKindFunding      IdKind = 19
-	IdKindBoosting     IdKind = 20
-	IdKindNaivePayment IdKind = 21
-	IdKindStickerRef   IdKind = 22
+	IdKindBoost        IdKind = 5
+	IdKindPaymentRef   IdKind = 6
+	IdKindPayment      IdKind = 7
+	IdKindTxout        IdKind = 8
+	IdKindTxin         IdKind = 9
+	IdKindStatic       IdKind = 10
+	IdKindTxid         IdKind = 11
+	IdKindHex          IdKind = 12
+	IdKindTimestamp    IdKind = 13
+	IdKindVersionstamp IdKind = 14
+	IdKindStrings      IdKind = 15
+	IdKindThumbnail    IdKind = 16
+	IdKindAccess       IdKind = 17
+	IdKindFunding      IdKind = 18
+	IdKindBoosting     IdKind = 19
+	IdKindNaivePayment IdKind = 20
 )
 
 var EnumNamesIdKind = map[IdKind]string{
@@ -38,7 +36,6 @@ var EnumNamesIdKind = map[IdKind]string{
 	IdKindMedia:        "Media",
 	IdKindMediaRef:     "MediaRef",
 	IdKindIddev:        "Iddev",
-	IdKindSticker:      "Sticker",
 	IdKindBoost:        "Boost",
 	IdKindPaymentRef:   "PaymentRef",
 	IdKindPayment:      "Payment",
@@ -55,7 +52,6 @@ var EnumNamesIdKind = map[IdKind]string{
 	IdKindFunding:      "Funding",
 	IdKindBoosting:     "Boosting",
 	IdKindNaivePayment: "NaivePayment",
-	IdKindStickerRef:   "StickerRef",
 }
 
 var EnumValuesIdKind = map[string]IdKind{
@@ -64,7 +60,6 @@ var EnumValuesIdKind = map[string]IdKind{
 	"Media":        IdKindMedia,
 	"MediaRef":     IdKindMediaRef,
 	"Iddev":        IdKindIddev,
-	"Sticker":      IdKindSticker,
 	"Boost":        IdKindBoost,
 	"PaymentRef":   IdKindPaymentRef,
 	"Payment":      IdKindPayment,
@@ -81,7 +76,6 @@ var EnumValuesIdKind = map[string]IdKind{
 	"Funding":      IdKindFunding,
 	"Boosting":     IdKindBoosting,
 	"NaivePayment": IdKindNaivePayment,
-	"StickerRef":   IdKindStickerRef,
 }
 
 func (v IdKind) String() string {
