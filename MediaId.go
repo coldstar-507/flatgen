@@ -8,7 +8,7 @@ import (
 
 type MediaIdT struct {
 	Prefix IdKind `json:"prefix"`
-	Pack uint64 `json:"pack"`
+	PackId uint64 `json:"pack_id"`
 	Timestamp int64 `json:"timestamp"`
 	U32 uint32 `json:"u32"`
 	AspectRatio float32 `json:"aspect_ratio"`
@@ -21,7 +21,7 @@ func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	}
 	MediaIdStart(builder)
 	MediaIdAddPrefix(builder, t.Prefix)
-	MediaIdAddPack(builder, t.Pack)
+	MediaIdAddPackId(builder, t.PackId)
 	MediaIdAddTimestamp(builder, t.Timestamp)
 	MediaIdAddU32(builder, t.U32)
 	MediaIdAddAspectRatio(builder, t.AspectRatio)
@@ -31,7 +31,7 @@ func (t *MediaIdT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 
 func (rcv *MediaId) UnPackTo(t *MediaIdT) {
 	t.Prefix = rcv.Prefix()
-	t.Pack = rcv.Pack()
+	t.PackId = rcv.PackId()
 	t.Timestamp = rcv.Timestamp()
 	t.U32 = rcv.U32()
 	t.AspectRatio = rcv.AspectRatio()
@@ -94,7 +94,7 @@ func (rcv *MediaId) MutatePrefix(n IdKind) bool {
 	return rcv._tab.MutateByteSlot(4, byte(n))
 }
 
-func (rcv *MediaId) Pack() uint64 {
+func (rcv *MediaId) PackId() uint64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetUint64(o + rcv._tab.Pos)
@@ -102,7 +102,7 @@ func (rcv *MediaId) Pack() uint64 {
 	return 0
 }
 
-func (rcv *MediaId) MutatePack(n uint64) bool {
+func (rcv *MediaId) MutatePackId(n uint64) bool {
 	return rcv._tab.MutateUint64Slot(6, n)
 }
 
@@ -160,8 +160,8 @@ func MediaIdStart(builder *flatbuffers.Builder) {
 func MediaIdAddPrefix(builder *flatbuffers.Builder, prefix IdKind) {
 	builder.PrependByteSlot(0, byte(prefix), 0)
 }
-func MediaIdAddPack(builder *flatbuffers.Builder, pack uint64) {
-	builder.PrependUint64Slot(1, pack, 0)
+func MediaIdAddPackId(builder *flatbuffers.Builder, packId uint64) {
+	builder.PrependUint64Slot(1, packId, 0)
 }
 func MediaIdAddTimestamp(builder *flatbuffers.Builder, timestamp int64) {
 	builder.PrependInt64Slot(2, timestamp, 0)
